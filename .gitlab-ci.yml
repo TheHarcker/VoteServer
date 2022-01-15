@@ -1,27 +1,31 @@
-# For more information, see: https://docs.gitlab.com/ee/ci/yaml/README.html#stages
-
-stages:          # List of stages for jobs, and their order of execution
-  - test
-  - build
-unit-test-job:   # This job runs in the test stage.
+# You can override the included template(s) by including variable overrides
+# SAST customization: https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
+# Secret Detection customization: https://docs.gitlab.com/ee/user/application_security/secret_detection/#customizing-settings
+# Dependency Scanning customization: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#customizing-the-dependency-scanning-settings
+# Note that environment variables can be set in several places
+# See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
+stages:
+- test
+- build
+unit-test-job:
   stage: test
   tags:
-    - swift
-
+  - swift
   before_script:
-    - swift package resolve
-    - swift package update
-    
+  - swift package resolve
+  - swift package update
   script:
-    - swift test
-
- 
-build-image:  
+  - swift test
+build-image:
   stage: build
   tags:
-    - dind
+  - dind
   script:
-    - docker build -t $CI_REGISTRY/harcker/voteserver:$CI_COMMIT_REF_SLUG .
-    - docker push $CI_REGISTRY/harcker/voteserver:$CI_COMMIT_REF_SLUG
+  - docker build -t $CI_REGISTRY/harcker/voteserver:$CI_COMMIT_REF_SLUG .
+  - docker push $CI_REGISTRY/harcker/voteserver:$CI_COMMIT_REF_SLUG
   before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+sast:
+  stage: test
+include:
+- template: Security/SAST.gitlab-ci.yml
