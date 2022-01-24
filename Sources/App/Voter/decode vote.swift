@@ -5,7 +5,7 @@ import Vapor
 /// Decodes and stores data POSTed to /vote/[voteid] OR the API
 /// - Throws: VotingDataError
 /// - Returns: Either a view to be presented be non API clients or the result as a String for API clients
-func decodeAndStore<V: SupportedVoteType>(group: Group, vote: V, constituent: Constituent, req: Request, forAPI: Bool) async -> ((data: V.ReceivedData?, error: Error)?, [String]?){
+func decodeAndStore<V: SupportedVoteType>(group: Group, vote: V, constituent: Constituent, req: Request) async -> ((data: V.ReceivedData?, error: Error)?, [String]?){
     var votingData: V.ReceivedData
     do {
         votingData = try req.content.decode(V.ReceivedData.self)

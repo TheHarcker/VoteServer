@@ -13,7 +13,7 @@ let package = Package(
         .package(url: "https://git.smkid.dk/Harcker/VoteKit", branch: "main"), //HTTPS
         .package(url: "https://git.smkid.dk/Harcker/AltVoteKit", branch: "main"), //HTTPS
         //		.package(url: "git@git.smkid.dk:Harcker/AltVoteKit.git", branch: "main"), //SSH
-        .package(name: "VoteExchangeFormat", path: "/Users/Hans/Desktop/SMRÅD/SMH/VoteExchangeFormat"),
+        .package(url: "https://git.smkid.dk/Harcker/VoteExchangeFormat", branch: "main"),
     ],
     targets: [
         .target(

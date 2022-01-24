@@ -1,6 +1,7 @@
 import VoteKit
 import AltVoteKit
 import Foundation
+import VoteExchangeFormat
 
 enum VoteTypes{
     case alternative(AlternativeVote)

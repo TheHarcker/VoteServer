@@ -27,7 +27,7 @@ func votingRoutes(_ app: Application, groupsManager: GroupsManager) {
             return req.redirect(to: .plaza)
         }
         
-        // Checks that the vote is open, otherwise the relevant votepage will be shown in the closed mide
+        // Checks that the vote is open, otherwise the relevant votepage will be shown in the closed mode
         guard await group.statusFor(await vote.id()) == .open else {
             switch vote {
             case .alternative(let v):
@@ -73,7 +73,7 @@ func votingRoutes(_ app: Application, groupsManager: GroupsManager) {
     /// - Returns: The UI to show, either a vote page where the constituent can try to fix the error or a success page which shows what was voted for
     func d<V: SupportedVoteType>(group: Group, vote: V, constituent: Constituent, req: Request) async -> UIManager{
         
-        let p: ((data: V.ReceivedData?, error: Error)?, [String]?) = await decodeAndStore(group: group, vote: vote, constituent: constituent, req: req, forAPI: false)
+        let p: ((data: V.ReceivedData?, error: Error)?, [String]?) = await decodeAndStore(group: group, vote: vote, constituent: constituent, req: req)
         assert(p.0 == nil || p.1 == nil)
         
         
