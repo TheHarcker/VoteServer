@@ -48,7 +48,11 @@ extension VoteCreationReceivedData{
 	}
 	
     func getOptions() throws -> [VoteOption]{
-		let options = self.options
+        if self.options.contains(";"){
+            throw voteCreationError.invalidOptionName
+        }
+        
+        let options = self.options
 			.split(separator: ",")
 			.compactMap{ opt -> String? in
 				let str = String(opt.trimmingCharacters(in: .whitespacesAndNewlines))

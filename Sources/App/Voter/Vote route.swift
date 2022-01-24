@@ -27,7 +27,7 @@ func votingRoutes(_ app: Application, groupsManager: GroupsManager) {
             return req.redirect(to: .plaza)
         }
         
-        // Chekcs that the vote is open
+        // Checks that the vote is open, otherwise the relevant votepage will be shown in the closed mide
         guard await group.statusFor(await vote.id()) == .open else {
             switch vote {
             case .alternative(let v):
@@ -39,17 +39,14 @@ func votingRoutes(_ app: Application, groupsManager: GroupsManager) {
             }
         }
         
-
         switch vote {
         case .alternative(let v):
-            return try await decodeAndStore(group: group, vote: v, constituent: constituent, req: req).encodeResponse(for: req)
+            return try await d(group: group, vote: v, constituent: constituent, req: req).encodeResponse(for: req)
         case .yesno(let v):
-            return try await decodeAndStore(group: group, vote: v, constituent: constituent, req: req).encodeResponse(for: req)
+            return try await d(group: group, vote: v, constituent: constituent, req: req).encodeResponse(for: req)
         case .simplemajority(let v):
-            return try await decodeAndStore(group: group, vote: v, constituent: constituent, req: req).encodeResponse(for: req)
-
+            return try await d(group: group, vote: v, constituent: constituent, req: req).encodeResponse(for: req)
         }
-
     }
     
     
@@ -70,67 +67,26 @@ func votingRoutes(_ app: Application, groupsManager: GroupsManager) {
         return await V.VotePageUI.init(title: await vote.name, vote: vote, errorString: errorString, persistentData: persistentData)
     }
     
-    /// Decodes data POSTed to /vote/[voteid], stores it if successfull, and renders the next page
-    /// - Throws: VotingDataError
-    /// - Returns: The view to be presented afterwards
-    func decodeAndStore<V: SupportedVoteType>(group: Group, vote: V, constituent: Constituent, req: Request) async -> UIManager{
-        var votingData: V.ReceivedData? = nil
-        do {
-            
-            do {
-                votingData = try req.content.decode(V.ReceivedData.self)
-            } catch {
-                // Workaround for an empty set of radio buttons giving error 422
-                if (V.enumCase == .yesNo || V.enumCase == .simpleMajority), let e = error as? AbortError, e.status == .unprocessableEntity {
-                    votingData = V.ReceivedData.blank()
-                } else {
-                    throw error
-                }
-            }
-            let votingData = votingData!
-
-            /// The vote as a SingleVote
-            let singleVote = try await votingData.asSingleVote(for: vote, constituent: constituent)
-
-            /// Saves the singleVote to the vote
-            guard await vote.addVote(singleVote) else {
-                throw VotingDataError.attemptedToVoteMultipleTimes
-            }
-
-            let voterID = singleVote.constituent.name ?? singleVote.constituent.identifier
-
-            switch V.enumCase{
-            case .alternative:
-                return SuccessfullVoteUI(title: await vote.name, voterID: voterID, priorities: (singleVote as! SingleVote).rankings.map{$0.name})
-            case .yesNo:
-                let val = (singleVote as! yesNoVote.yesNoVoteType).values
-                let prio: [String]
-                if val.isEmpty{
-                    prio = ["Voted blank"]
-                } else {
-                    // Finds the full list of options to recall them in order
-                    prio = await vote.options.map { opt -> String in
-                        if let option = val[opt]{
-                            return opt.name + ": " + (option ? "Yes" : "No")
-                        } else {
-                            return opt.name + ": Blank"
-                        }
-                        
-                    }
-                }
-                return SuccessfullVoteUI(title: await vote.name, voterID: voterID, priorities: prio)
-            case .simpleMajority:
-                let prio = (singleVote as! SimpleMajority.SimpleMajorityVote).preferredOption?.name ?? "Voted blank"
-
-                return SuccessfullVoteUI(title: await vote.name, voterID: voterID, priorities: [prio])
-            }
-
-        } catch {
-            return await checkAndShow(group: group, constituent: constituent, vote: vote, errorString: error.asString(), persistentData: votingData?.asCorrespondingPersistenseData())
+    
+    
+    /// Returns a UI dependent on the success of decoding and storing votes
+    /// - Returns: The UI to show, either a vote page where the constituent can try to fix the error or a success page which shows what was voted for
+    func d<V: SupportedVoteType>(group: Group, vote: V, constituent: Constituent, req: Request) async -> UIManager{
+        
+        let p: ((data: V.ReceivedData?, error: Error)?, [String]?) = await decodeAndStore(group: group, vote: vote, constituent: constituent, req: req, forAPI: false)
+        assert(p.0 == nil || p.1 == nil)
+        
+        
+        if let confirmationStrings = p.1{
+            let voterID = constituent.name ?? constituent.identifier
+            return SuccessfullVoteUI(title: await vote.name, voterID: voterID, priorities: confirmationStrings )
+        } else {
+            let votePage = await checkAndShow(group: group, constituent: constituent, vote: vote, errorString: p.0?.error.asString(), persistentData: p.0?.data?.asCorrespondingPersistenseData())
+            return votePage
         }
-        
-        
     }
+    
+    
     
     func voteGroupAndUserID(for req: Request) async -> (group: Group, vote: VoteTypes, constituent: Constituent)?{
         guard

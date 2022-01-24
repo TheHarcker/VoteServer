@@ -7,7 +7,16 @@ func convertVoteToMetadata<V: SupportedVoteType>(_ v: V, constituentID: Constitu
     async let name = v.name
     async let hasVoted = v.hasConstituentVoted(constituentID)
     let isOpen = await group.statusFor(await id) == .open
-    let kind: VoteMetadata.Kind = .AlternativeVote
+    
+    let kind: VoteMetadata.Kind
+    switch V.enumCase{
+    case .alternative:
+        kind = .AlternativeVote
+    case .simpleMajority:
+        kind = .SimMajVote
+    case .yesNo:
+        kind = .YNVote
+    }
     
     return VoteMetadata(id: await id, name: await name, kind: kind, isOpen: isOpen, hasVoted: await hasVoted)
 }
@@ -30,14 +39,14 @@ extension Data: AsyncResponseEncodable {
 extension ExtendedVoteData{
     init<V: SupportedVoteType>(_ v: V, constituentID: ConstituentIdentifier, group: Group) async{
         async let metadata = convertVoteToMetadata(v,constituentID: constituentID, group: group)
-        async let validatorKeys = v.genericValidators.map(\.name) + v.particularValidators.map(\.name)
-        async let options = v.options.map(\.name)
-        self = ExtendedVoteData(metaData: await metadata , options: await options, validatorKeys: await validatorKeys)
+        async let validatorKeys = v.genericValidators.map(\.id) + v.particularValidators.map(\.id)
+		async let options = v.options.map{ExchangeOption(name: $0.name, uuid: $0.id)}
+        self = ExtendedVoteData(metadata: await metadata, options: await options, validatorKeys: await validatorKeys)
     }
     
 }
 
-
+// Marks all datatypes from the API as 'Content' to allow an instance of these to be returned directly in a route
 extension ExtendedVoteData: Content{}
 extension GroupData: Content{}
 extension VoteMetadata: Content{}

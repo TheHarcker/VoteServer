@@ -1,23 +1,17 @@
 import Foundation
 import VoteKit
 import AltVoteKit
-
+import VoteExchangeFormat
 
 // Defines data received from a vote page
-protocol VotingData: Codable{
+protocol VotingData: VoteData{
     associatedtype Vote: SupportedVoteType
     
-    var blank: Bool? {get}
     func asSingleVote(for vote: Vote, constituent: Constituent) async throws -> Vote.voteType
     func asCorrespondingPersistenseData()-> Vote.VotePageUI.PersistanceData?
-    static func blank() -> Self
 }
 
-struct YnVotingData: VotingData{
-    // Representing UUID : Yes/No
-    var votes: [String: String]?
-    var blank: Bool?
-    
+extension YnVotingData: VotingData{
     func asSingleVote(for vote: yesNoVote, constituent: Constituent) async throws -> yesNoVote.yesNoVoteType{
         
         // Cheks if the vote is explicitly blank, and whether that is allowed
@@ -33,7 +27,7 @@ struct YnVotingData: VotingData{
             }
         }
         
-        //TODO: Maybe add a cache for this? Of type [vote.id: [UUID: VoteOption]] and a helper function for either generating or accessing this dictionary; this would require vote.options to be constant
+        //TODO: Maybe add a cache for this? Of type [vote.id: [UUID: VoteOption]] and a helper function for either generating or accessing this dictionary; this would require vote.options to be constant, or just a hash of vote.options to be saved and compared at every use of the cache
         // Lookup for translating UUID -> VoteOption
         let uuidToOption = await vote.options.reduce(into: [UUID: VoteOption]()) { partialResult, option in
             partialResult[option.id] = option
@@ -82,17 +76,10 @@ struct YnVotingData: VotingData{
         }
         return try? getValues(votes: votes!)
     }
-    
-    static func blank() -> YnVotingData {
-        self.init(votes: nil, blank: true)
-    }
 
 }
 
-struct SimpleMajorityVotingData: VotingData{
-    var selectedOption: String?
-    var blank: Bool?
-    
+extension SimpleMajorityVotingData: VotingData{
     func asSingleVote(for vote: SimpleMajority, constituent: Constituent) async throws -> SimpleMajority.SimpleMajorityVote{
         // Cheks if the vote is explicitly blank, and whether that is allowed
         if blank == true || selectedOption == nil{
@@ -124,18 +111,13 @@ struct SimpleMajorityVotingData: VotingData{
             return nil
         }
     }
-    
-    static func blank() -> SimpleMajorityVotingData {
-        self.init(selectedOption: nil, blank: true)
-    }
 }
 
 
 
-struct AltVotingData: VotingData{
-	var priorities: [Int: String]?
-	var blank: Bool?
-	
+extension AltVotingData: VotingData{
+	typealias Vote = AlternativeVote
+
 	/// Gets the priorities in the order the user sees them
 	private func orderForOptions(_ options: [VoteOption], addDefault: Bool) -> [String]{
 		let priorities = blank == true ? [:] : priorities ?? [:]
@@ -191,7 +173,7 @@ struct AltVotingData: VotingData{
 
 
 		//Check for violations of the preferenceForAllCandidates validator. That is violated if there isn't preferences for all candiates and it isn't a blank vote
-        let preferenceForAll = await vote.particularValidators.contains(.allCandidatesRequiresAaVote)
+        let preferenceForAll = await vote.particularValidators.contains(.allCandidatesRequiresAVote)
 		if Set(realOptions) != Set(await vote.options) && !realOptions.isEmpty && preferenceForAll{
 			throw VotingDataError.allShouldBeFilledIn
 		}
@@ -202,11 +184,6 @@ struct AltVotingData: VotingData{
     func asCorrespondingPersistenseData()->Self?{
         return self
     }
-    
-    static func blank() -> AltVotingData {
-        self.init(priorities: nil, blank: true)
-    }
-
 }
 
 enum VotingDataError: ErrorString{
@@ -215,7 +192,7 @@ enum VotingDataError: ErrorString{
 		case .invalidRequest:
 			return "Invalid request, try reloading the page and try again"
 		case .allShouldBeDifferent:
-			return "Two or more priorities is the same"
+			return "Two or more priorities are the same"
 		case .attemptedToVoteMultipleTimes:
 			return "You've attempted to vote multiple times"
 		case .allShouldBeFilledIn:

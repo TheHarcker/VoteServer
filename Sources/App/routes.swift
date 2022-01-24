@@ -13,5 +13,5 @@ func routes(_ app: Application, groupsManager: GroupsManager) throws {
     ResultRoutes(app, groupsManager: groupsManager)
     adminRoutes(app, groupsManager: groupsManager)
     groupJoinRoutes(app, groupsManager: groupsManager)
-    APIRoutes(app, routesGroup: app.grouped("api"), groupsManager: groupsManager)
+    APIRoutes(app, routesGroup: app.grouped("api", "v1"), groupsManager: groupsManager)
 }

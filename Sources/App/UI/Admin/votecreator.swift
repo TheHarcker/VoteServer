@@ -8,6 +8,8 @@ struct VoteCreatorUI<V: SupportedVoteType>: UIManager{
 	let nameOfVote: String
 	let options: String
 	
+    var buttons: [UIButton] = [.backToAdmin]
+    
 	init(errorString: String? = nil, validatorsGeneric: [ValidatorData<V>], validatorsParticular: [ValidatorData<V>], _ persistentData: VoteCreationReceivedData<V>? = nil) {
         self.title = "Create \(V.typeName)"
         self.errorString = errorString

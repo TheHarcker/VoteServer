@@ -1,4 +1,5 @@
 import Vapor
+import VoteExchangeFormat
 
 /// Defines paths often used for redirection
 enum redirectionPaths{
@@ -38,7 +39,7 @@ enum redirectionPaths{
 		case .login:
 			return "login"
         case .API(let APIPath):
-            return "api/" + APIPath.relativeStringValue()
+            return "api/v1/" + APIPath.relativeStringValue()
 		}
 	}
 }
@@ -57,22 +58,4 @@ extension redirectionPaths: AsyncResponseEncodable, ResponseEncodable{
 	func encodeResponse(for req: Request) -> EventLoopFuture<Response> {
 		req.eventLoop.makeSucceededFuture(req.redirect(to: self))
 	}
-}
-
-
-enum APIPaths{
-    case join, getdata, getvote, postvote
-    
-    func relativeStringValue() -> String{
-        switch self {
-        case .join:
-            return "join"
-        case .getdata:
-            return "getdata"
-        case .getvote:
-            return "getvote"
-        case .postvote:
-            return "postvote"
-        }
-    }
 }

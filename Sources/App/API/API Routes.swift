@@ -24,7 +24,7 @@ func APIRoutes(_ app: Application, routesGroup API: RoutesBuilder, groupsManager
     }
     
     /// Returns full information (metadata, options, validators) regarding a vote only if the client are allowed to vote at the moment
-    API.get("getvote", ":voteid") { req async throws -> ExtendedVoteData in
+    API.get("getvote", ":voteID") { req async throws -> ExtendedVoteData in
       
         
         guard let (group, const) = await groupsManager.groupAndVoterForAPI(req: req) else {
@@ -54,6 +54,46 @@ func APIRoutes(_ app: Application, routesGroup API: RoutesBuilder, groupsManager
      
         return voteData
     }
+	
+	API.post("postvote", ":voteID") { req async throws -> [String] in
+		// Retrieve contextual information
+        guard let (group, const) = await groupsManager.groupAndVoterForAPI(req: req) else{
+			throw Abort(.unauthorized) //401
+		}
+		
+		guard
+			let voteIDStr = req.parameters.get("voteID"),
+			let vote = await group.voteForID(voteIDStr)
+		else {
+			throw Abort(.notFound) //404
+		}
+		
+        // Checks that the vote is open
+		guard await group.statusFor(await vote.id()) == .open else {
+			throw Abort(.unauthorized) //401
+		}
+        
+        // Decodes and stores the vote
+        let p: ((data: Any?, error: Error)?, [String]?)
+        switch vote {
+        case .alternative(let v):
+            p = await decodeAndStore(group: group, vote: v, constituent: const, req: req, forAPI: true)
+        case .yesno(let v):
+            p = await decodeAndStore(group: group, vote: v, constituent: const, req: req, forAPI: true)
+        case .simplemajority(let v):
+            p = await decodeAndStore(group: group, vote: v, constituent: const, req: req, forAPI: true)
+        }
+        
+        if let confirmationStrings = p.1{
+            return confirmationStrings
+        } else if p.0 != nil {
+            throw p.0!.error
+        } else {
+            assertionFailure("This case should never be reached")
+            throw Abort(.internalServerError) //500
+        }
+	}
+
 }
 
 

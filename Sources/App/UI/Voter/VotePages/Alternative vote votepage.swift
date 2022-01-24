@@ -1,6 +1,8 @@
 import AltVoteKit
 import VoteKit
 import Foundation
+import VoteExchangeFormat
+
 struct AltVotePageGenerator: VotePage{
 	var title: String
     var errorString: String?

@@ -24,6 +24,12 @@
                         <td>
                             <button type="button" hidden="true" id="reset-#(row.key)" onClick="buttonWasReset('#(row.key)',#if(row.type.bool): #(row.type.bool.current)#elseif(row.type.list):'#(row.type.list.current)'#endif)">Reset changes</button>
                         </td>
+                        #if(row.disclaimer):
+                        <td>
+                            #(row.disclaimer)
+                        </td>
+                        #endif
+                        
                     #endexport
                 #endextend
                 <input type="hidden" name="hidden" value="">

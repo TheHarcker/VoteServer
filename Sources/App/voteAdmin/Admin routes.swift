@@ -261,23 +261,26 @@ struct SettingsUI: UITableManager{
     
     
     init(for group: Group) async {
+        let allowsUnVerified = await group.settings.allowsUnverifiedConstituents
         self.rows = [
-            Setting("auv", "Allows unverified voters", type: .bool(current: await group.settings.allowsUnverifiedConstituents)),
+            Setting("auv", "Allows unverified voters", type: .bool(current: allowsUnVerified), disclaimer: allowsUnVerified ? "Changing this setting will kick unverified constituents" : nil),
             Setting("selfReset", "Constituents can self reset", type: .bool(current: await group.settings.constituentsCanSelfResetVotes)),
             Setting("CSVConfiguration", "CSV Export mode", type: .list(options: await Array(group.settings.csvKeys.keys), current: await group.settings.csvConfiguration.name)),
             ]
     }
     
     struct Setting: Codable{
-        init(_ key: String, _ name: String, type: SettingsType){
+        init(_ key: String, _ name: String, type: SettingsType, disclaimer: String? = nil){
             self.key = key
             self.name = name
             self.type = type
+            self.disclaimer = disclaimer
         }
         
         var key: String
         var name: String
         var type: SettingsType
+        var disclaimer: String?
         
         enum SettingsType: Codable{
             case bool(current: Bool)
