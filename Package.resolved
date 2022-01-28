@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/swift-server/async-http-client.git",
         "state": {
           "branch": null,
-          "revision": "70826d038d5bdc3142a386b735792d87ef7a5dfc",
-          "version": "1.8.1"
+          "revision": "cbf533073d9a5edfb16c266d14151f69137ba7c9",
+          "version": "1.8.2"
         }
       },
       {
@@ -159,8 +159,17 @@
         "repositoryURL": "https://github.com/vapor/vapor.git",
         "state": {
           "branch": null,
-          "revision": "572aba071e93662d6fb1d6fb82ec79e9741d72ca",
-          "version": "4.54.2"
+          "revision": "18e9419cae5049e43ca1e8002ca3cf0449f2c8ed",
+          "version": "4.55.0"
+        }
+      },
+      {
+        "package": "VoteExchangeFormat",
+        "repositoryURL": "https://git.smkid.dk/Harcker/VoteExchangeFormat",
+        "state": {
+          "branch": "main",
+          "revision": "78b4613b646b07adba1c46fc70acd2c030a1867f",
+          "version": null
         }
       },
       {
@@ -168,7 +177,7 @@
         "repositoryURL": "https://git.smkid.dk/Harcker/VoteKit",
         "state": {
           "branch": "main",
-          "revision": "1db9d3acedd70e9da322381bb0736ee72bfe071a",
+          "revision": "a6c66aa433bbf13fea5844be15195668f5a6ca46",
           "version": null
         }
       },

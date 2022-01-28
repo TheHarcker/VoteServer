@@ -14,10 +14,8 @@ actor GroupsManager{
 	private var groupsByUUID = [UUID: Group]()
 	/// The last time a group was accessed, used for manual garbage collection
 	private var lastAccessForGroup = [UUID: Date]()
-	/// JoinPhrases already reserved
-	public var reservedPhrases = Set<JoinPhrase>()
-	/// The hashed password for the given JoinPhrase
-	public var pwdigestForJF = [JoinPhrase: String]()
+	/// JoinPhrases already in use
+    private var reservedPhrases = Set<JoinPhrase>()
 	
 	private let logger = Logger(label: "Groups")
 }
@@ -67,16 +65,19 @@ extension GroupsManager{
 		}
 	}
 	
-	func createGroup(session: SessionID, name: String, constituents: Set<Constituent>, pwdigest: String, allowsUnverified: Bool) async{
-		let jf = createJoinPhrase()
-		let group = Group(adminSessionID: session, name: name, constituents: constituents, joinPhrase: jf, allowsUnverifiedConstituents: allowsUnverified)
+	func createGroup(session: SessionID, name: String, constituents: Set<Constituent>, pwdigest: String, allowsUnverified: Bool) async -> Bool{
+        guard let jf = createJoinPhrase() else {
+            logger.warning("Joinphrase could not be generated within reasonable time")
+            return false
+        }
+		let group = Group(adminSessionID: session, name: name, constituents: constituents, joinPhrase: jf, allowsUnverifiedConstituents: allowsUnverified, passwordDigest: pwdigest)
 		groupsBySession[group.adminSessionID] = group
 		groupsByPhrase[jf] = group
 		groupsByUUID[group.id] = group
 		updateAccessTimeFor(group)
-		pwdigestForJF[jf] = pwdigest
 		
 		logger.info("Group \"\(name)\" was created, with the joinphrase \"\(jf)\"")
+        return true
 	}
 	
     func deleteGroup(jf: JoinPhrase) -> Bool{
@@ -90,7 +91,6 @@ extension GroupsManager{
         groupsByPhrase[jf] = nil
         groupsByUUID[group.id] = nil
         lastAccessForGroup[group.id] = nil
-        pwdigestForJF[jf] = nil
         reservedPhrases.remove(jf)
         logger.info("Group names \"\(group.name)\" was deleted")
         
@@ -100,13 +100,11 @@ extension GroupsManager{
     
 	/// Attempts to login using a joinphrase and the corresponding password
 	func login(request: Request, joinphrase: JoinPhrase, password: String) async -> AdminSession?{
-		if let digest = pwdigestForJF[joinphrase],
-		   (try? request.password.verify(password, created: digest)) == true,
-		   let sessionID = groupForJoinPhrase(joinphrase)?.adminSessionID
-		{
-			logger.info("An admin logged in to a group with the joinphrase \"\(joinphrase)\"")
-			return AdminSession(sessionID: sessionID)
-		} else {
+        if let group = groupForJoinPhrase(joinphrase), (try? request.password.verify(password, created: await group.passwordDigest)) == true {
+            let sessionID = group.adminSessionID
+            logger.info("An admin logged in to a group with the joinphrase \"\(joinphrase)\"")
+            return AdminSession(sessionID: sessionID)
+        } else {
 			return nil
 		}
 	}
@@ -123,7 +121,11 @@ extension GroupsManager{
 
 //MARK: Support for creating joinphrases
 extension GroupsManager{
-	func createJoinPhrase() -> JoinPhrase{
+    func createJoinPhrase(attemptsLeft: Int = 10) -> JoinPhrase?{
+        guard attemptsLeft > 0 else{
+            return nil
+        }
+        
 		let phrase = joinPhraseGenerator()
 		
 		// If a phrase can be inserted without overwriting another element then it must be unique
@@ -131,7 +133,7 @@ extension GroupsManager{
 			return phrase
 		} else {
 			//Otherwise we'll try again
-			return createJoinPhrase()
+            return createJoinPhrase(attemptsLeft: attemptsLeft - 1)
 		}
 	}
 }

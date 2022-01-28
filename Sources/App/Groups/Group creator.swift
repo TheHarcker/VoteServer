@@ -20,17 +20,8 @@ extension GroupCreatorData{
 	
 	
 	func getHashedPassword(for req: Request) throws -> String {
-		let trimmedPW = adminpw.trimmingCharacters(in: .whitespacesAndNewlines)
-		let trimmedGN = try self.getGroupName()
-		
-		guard trimmedPW.count >= 7, trimmedGN.count < 3 || (!trimmedPW.contains(trimmedGN) && !trimmedGN.contains(trimmedPW)) else {
-			throw GroupCreationError.invalidPassword
-		}
-		
-		return try req.password.hash(trimmedPW)
+        return try hashPassword(pw: adminpw, groupName: try self.getGroupName(), for: req.application)
 	}
-	
-	
 	
 	func getConstituents() throws -> Set<Constituent>{
 		let individualVoters = self.usernames.split(whereSeparator: \.isNewline)

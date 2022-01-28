@@ -6,13 +6,14 @@ import Logging
 actor Group{
 	typealias VoteID = UUID
 	
-	internal init(adminSessionID: SessionID, name: String, constituents: Set<Constituent>, joinPhrase: JoinPhrase, allowsUnverifiedConstituents: Bool) {
+    internal init(adminSessionID: SessionID, name: String, constituents: Set<Constituent>, joinPhrase: JoinPhrase, allowsUnverifiedConstituents: Bool, passwordDigest: String) {
 		self.adminSessionID = adminSessionID
 		self.name = name
 		self.verifiedConstituents = constituents
 		self.joinPhrase = joinPhrase
         self.settings = GroupSettings(allowsUnverifiedConstituents: allowsUnverifiedConstituents)
 		self.logger = Logger(label: "Group \"\(name)\":\"\(joinPhrase)\"")
+        self.passwordDigest = passwordDigest
 	}
 	
 	/// The name of the group as shown in the UI
@@ -46,7 +47,11 @@ actor Group{
 	
 	private let logger: Logger
     
+    /// Settings for this group
     var settings: GroupSettings
+    
+    /// Hashed password for this group
+    var passwordDigest: String
 }
 
 //MARK: Change settings
@@ -72,7 +77,6 @@ extension Group{
         }
     }
 }
-
 
 //MARK: Get constituents and their status
 extension Group{
@@ -359,6 +363,12 @@ extension Group {
 	}
 }
 
+//MARK: Password reset
+extension Group{
+    func setPasswordTo(digest: String){
+        self.passwordDigest = digest
+    }
+}
 
 enum VoteStatus: String, Codable{
 	case open

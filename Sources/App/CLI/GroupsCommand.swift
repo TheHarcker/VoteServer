@@ -12,6 +12,9 @@ struct GroupsCommand: Command, Sendable{
         
         @Flag(name: "delete", short: "d")
         var delete: Bool
+        
+        @Option(name: "password", short: "p")
+         var newPassword: String?
     }
     
     var help: String {
@@ -21,6 +24,7 @@ struct GroupsCommand: Command, Sendable{
         [join phrase] - The joinphrase to use
         -i - Get info for the for this join phrase
         -d - Delete the group linked to this join phrase
+        -p [Password] - Sets the password
         """
     }
     
@@ -41,11 +45,32 @@ struct GroupsCommand: Command, Sendable{
         
         let joinPhrase = signature.value
         
-        if signature.info && signature.delete {
+        if signature.info && signature.delete{
             throw "Only one flag at a time"
         }
         
-        if signature.delete{
+        if signature.newPassword != nil && !signature.newPassword!.isEmpty{
+            if signature.info || signature.delete{
+                throw "Only one flag at a time"
+            }
+        
+            let pw = signature.newPassword!.trimmingCharacters(in: .whitespacesAndNewlines)
+            
+            Task{
+                guard let group = await groupsManager.groupForJoinPhrase(joinPhrase) else {
+                    context.console.error("Group not found")
+                    return
+                }
+                guard let digest = try? hashPassword(pw: pw, groupName: group.name, for: context.application) else {
+                    context.console.error("Invalid or insecure password")
+                    return
+                }
+                await group.setPasswordTo(digest: digest)
+                context.console.info("Password was set")
+
+            }
+            
+        } else if signature.delete{
             Task{
                 if await groupsManager.deleteGroup(jf: joinPhrase){
                     context.console.print("Successfully deleted: \(joinPhrase)")
@@ -55,7 +80,7 @@ struct GroupsCommand: Command, Sendable{
             }
             
             return
-        } else{
+        } else if signature.info{
             
             Task{
                 guard
