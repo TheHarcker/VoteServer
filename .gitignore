@@ -1,6 +1,6 @@
 Packages
 .build
-Package.resolved
+*.resolved
 xcuserdata
 *.xcodeproj
 DerivedData/
