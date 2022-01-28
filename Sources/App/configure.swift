@@ -19,9 +19,6 @@ public func configure(_ app: Application) throws {
 	
     
     let groupsManager = GroupsManager()
-    // Register commands
-    app.commands.use(GroupsCommand(groupsManager: groupsManager), as: "groups")
-
     // register routes
     try routes(app, groupsManager: groupsManager)
 }
