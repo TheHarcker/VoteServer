@@ -4,6 +4,10 @@
 			<br>
 			Join phrase: <b>#(groupJoinLink)</b>
 			<br><img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://vote.smkid.dk/join/#(groupJoinLink)" border="2">
+			<!--
+			Alternative Google QR generation API
+			<br><img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=https://vote.smkid.dk/join/#(groupJoinLink)" border="2">-->
+
 			<br><br>
 			#extend("table"):
 				#export("tablerow"):
