@@ -9,9 +9,9 @@ func setupCommands(groupsManager: GroupsManager, app: Application){
         commands.use(c, as: "groups", isDefault: false)
         
         let group = commands.group(help: "")
-
+        
         while true{
-            guard let t = readLine(strippingNewline: true) else {continue}
+            let t = console.input()
             
             let str = Array(t.split(separator: " ").map{String($0)})
 

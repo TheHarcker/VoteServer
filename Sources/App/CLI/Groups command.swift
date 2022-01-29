@@ -34,7 +34,7 @@ struct GroupsCommand: Command{
         
         if trimVal.isEmpty || trimVal == "list"{
             Task{
-                context.console.print("All groups")
+                context.console.print("All groups:")
                 let allGroups = await groupsManager.listAllGroups()
                 context.console.print(allGroups)
 
