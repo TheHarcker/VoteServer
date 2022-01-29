@@ -11,11 +11,13 @@ func setupCommands(groupsManager: GroupsManager, app: Application){
         let group = commands.group(help: "")
         
         while true{
-            let t = console.input()
+            guard let t = readLine(strippingNewline: true)?.trimmingCharacters(in: .whitespacesAndNewlines) else {
+                continue
+            }
             
             let str = Array(t.split(separator: " ").map{String($0)})
 
-            let input: CommandInput = .init(arguments: CommandLine.arguments + str)
+            let input: CommandInput = .init(arguments: [""] + str)
             
             do {
                 try console.run(group, input: input)
