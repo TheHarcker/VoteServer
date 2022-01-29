@@ -3,7 +3,7 @@ import Vapor
 
 // configures your application
 public func configure(_ app: Application) throws {
-    // uncomment to serve files from /Public folder
+    // Allow static files to be served from /Public
 	app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
 
 	// Adds support for using leaf to render views
@@ -14,12 +14,16 @@ public func configure(_ app: Application) throws {
 	app.sessions.use(.memory)
 	app.middleware.use(app.sessions.middleware)
 
-	//Defines password hashing function
+	// Defines password hashing function
 	app.passwords.use(.bcrypt)
 	
     
     let groupsManager = GroupsManager()
-    // register routes
+
+    // Enables CLI
+    setupCommands(groupsManager: groupsManager, app: app)
+    
+    // Register routes
     try routes(app, groupsManager: groupsManager)
 }
 

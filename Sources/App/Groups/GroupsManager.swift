@@ -92,7 +92,7 @@ extension GroupsManager{
         groupsByUUID[group.id] = nil
         lastAccessForGroup[group.id] = nil
         reservedPhrases.remove(jf)
-        logger.info("Group names \"\(group.name)\" was deleted")
+        logger.info("Group named \"\(group.name)\" was deleted")
         
         return true
     }
@@ -113,7 +113,7 @@ extension GroupsManager{
     func listAllGroups() -> String{
         let groups = self.groupsByPhrase.values
         let values = groups.map{
-            "\"\($0.name)\" was accessed at: " + (lastAccessForGroup[$0.id]?.description ?? "Unknown")
+            "\t-\"\($0.name)\":\"\($0.joinPhrase)\" was last accessed at: " + (lastAccessForGroup[$0.id]?.description ?? "Unknown")
         }
         return values.joined(separator: "\n")
     }
