@@ -10,6 +10,8 @@ struct GroupSettings: Codable, Sendable{
         self.csvKeys = allCSVConfigurations.reduce(into: [String: CSVConfiguration](), { $0[$1.name] = $1})
 		
 		self.showTags = showTags
+		
+		self.chatState = .forAll
     }
     
     /// If this group allows unverified constituents to join
@@ -24,4 +26,12 @@ struct GroupSettings: Codable, Sendable{
 	
 	/// Whether tags and tag statistic should be shown in the constituents list
 	var showTags: Bool
+	
+	var chatState: ChatState
+	
+	enum ChatState: String, CaseIterable, Codable{
+		case disabled = "Disabled"
+		case forAll = "For all"
+		case onlyVerified = "Only for verified constituents"
+	}
 }

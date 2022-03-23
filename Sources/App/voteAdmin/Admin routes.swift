@@ -263,6 +263,7 @@ struct SettingsUI: UITableManager{
             Setting("selfReset", "Constituents can self reset", type: .bool(current: current.constituentsCanSelfResetVotes)),
             Setting("CSVConfiguration", "CSV Export mode", type: .list(options: Array(current.csvKeys.keys), current: current.csvConfiguration.name)),
 			Setting("showTags", "Show tags", type: .bool(current: current.showTags)),
+			Setting("chat", "Allow livechat", type: .list(options: GroupSettings.ChatState.allCases.map(\.rawValue), current: current.chatState.rawValue)),
             ]
     }
     
@@ -292,6 +293,7 @@ struct SetSettings: Codable{
     var selfReset: String?
     var CSVConfiguration: String?
 	var showTags: String?
+	var chatState: GroupSettings.ChatState?
 	
     func saveSettings(to group: Group) async{
         let rAUV = convertBool(auv)
@@ -306,7 +308,7 @@ struct SetSettings: Codable{
             rConfig = nil
         }
         
-        await group.setSettings(allowsUnverifiedConstituents: rAUV, constituentsCanSelfResetVotes: rSelfReset, csvConfiguration: rConfig, showTags: rShowTags)
+		await group.setSettings(allowsUnverifiedConstituents: rAUV, constituentsCanSelfResetVotes: rSelfReset, csvConfiguration: rConfig, showTags: rShowTags, chatState: chatState)
     }
     // Due to limitations of HTTP/HTML the state of checkboxes is only sent when they're on
     private func convertBool(_ value: String?) -> Bool{

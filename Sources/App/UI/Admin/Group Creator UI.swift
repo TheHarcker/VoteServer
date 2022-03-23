@@ -16,3 +16,9 @@ struct GroupCreatorUI: UIManager{
 	
 	static var template: String = "creategroup"
 }
+import Vapor
+extension GroupCreatorUI{
+	init(req: Request){
+		self.init(errorString: nil, nil)
+	}
+}

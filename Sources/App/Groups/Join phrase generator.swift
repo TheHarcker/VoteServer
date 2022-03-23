@@ -10,18 +10,17 @@ func joinPhraseGenerator(chars: UInt = joinPhraseLength) -> String{
 }
 
 fileprivate let possibleChars: Set<Character> = {
-	var set = Set<Character>()
-	for i in 0...9{
-		set.insert(Character(i.description))
-	}
-	
 	//Based on https://stackoverflow.com/a/63760652/5257653
-	let aScalars = "a".unicodeScalars
+	let aScalars: String.UnicodeScalarView = "a".unicodeScalars
 	let aCode = Int(aScalars[aScalars.startIndex].value)
 	
-	for i in 0..<26{
-		set.insert(Character(Unicode.Scalar(aCode + i) ?? aScalars[aScalars.startIndex]))
+	let numbers: [Character] = (0...9).map{i -> Character in
+		return Character(i.description)
 	}
 	
-	return set
+	let chars: [Character] = (0..<26).map { i -> Character in
+		return Character(Unicode.Scalar(aCode + i)!)
+	}
+	
+	return Set(chars + numbers)
 }()
