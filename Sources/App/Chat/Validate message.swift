@@ -16,5 +16,9 @@ func checkMessage(msg: String) throws -> String{
 		throw ChatError.profanity
 	}
 	
+	if msg.contains("<") || msg.contains(">") {
+		throw ChatError.nonallowedCharacter
+	}
+	
 	return msg
 }

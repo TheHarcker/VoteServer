@@ -6,4 +6,7 @@ enum ChatError: String, ErrorString, Codable{
 	case messageTooLong = "Your message was too long"
 	
 	case profanity = "You message contained profanity"
+	case nonallowedCharacter = "You are using prohibited characters"
+	// Send when the server is rate limiting the client
+	case rateLimited = "ratelimited"
 }

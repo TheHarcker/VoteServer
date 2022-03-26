@@ -1,0 +1,15 @@
+#extend("outerHTML"):
+		#export("extraHead"):
+			<script>
+				const socketName = "adminsocket";
+			</script>
+			<script src="/js/chat.js"></script>
+		#endexport
+		
+		#export("body"):
+			#extend("chatview"):
+			#endextend
+					
+			<a href="/admin/chats/downloadcsv" class="blue button" download>Download chat history</a>
+		#endexport
+#endextend

@@ -71,7 +71,11 @@ extension GroupsManager{
             logger.warning("Joinphrase could not be generated within reasonable time")
             return false
         }
-		let group = Group(adminSessionID: session, db: db, name: name, constituents: constituents, joinPhrase: jf, allowsUnverifiedConstituents: allowsUnverified, passwordDigest: pwdigest)
+		
+		let socketController = ChatSocketController(db: db)
+		let group = Group(adminSessionID: session, socketController: socketController, name: name, constituents: constituents, joinPhrase: jf, allowsUnverifiedConstituents: allowsUnverified, passwordDigest: pwdigest)
+		await socketController.setup(group: group)
+		
 		groupsBySession[group.adminSessionID] = group
 		groupsByPhrase[jf] = group
 		groupsByUUID[group.id] = group
@@ -87,7 +91,7 @@ extension GroupsManager{
         }
 		
 		// Closes all webSockets in this group
-		await group.socketController.kickAll(includeAdmins: Bool)
+		await group.socketController.kickAll(includeAdmins: true)
 		
         groupsBySession = groupsBySession.filter{ d in
             d.value.id != group.id

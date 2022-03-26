@@ -65,6 +65,8 @@ extension Array where Element == Chats{
 		
 		var constituents = [String: String]()
 		var output = [ChatFormat]()
+		constituents["Admin"] = "Admin"
+		
 		for chat in self{
 			if constituents[chat.sender] == nil {
 				let const = await group.constituent(for: chat.sender)

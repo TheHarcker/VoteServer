@@ -2,6 +2,7 @@ import VoteKit
 struct ConstituentsListUI: UITableManager{
 	var title: String = "Constituents"
 	var errorString: String? = nil
+	var hideIfEmpty: Bool = true
 	
 	var buttons: [UIButton] = [.backToAdmin,
 							   .reload,

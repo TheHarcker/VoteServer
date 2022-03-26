@@ -1,15 +1,17 @@
-<table>
-    #if(count(tableHeaders) != 0):
-	<tr>
-	#for(head in tableHeaders):
-		<th>#(head)</th>
-	#endfor
-	</tr>
-	#endif
-    
-	#for(row in rows):
+#if(count(rows) != 0 || !hideIfEmpty):
+	<table>
+    	#if(count(tableHeaders) != 0):
 		<tr>
-		#import("tablerow")
+		#for(head in tableHeaders):
+			<th>#(head)</th>
+		#endfor
 		</tr>
-	#endfor
-</table>
+		#endif
+    	
+		#for(row in rows):
+			<tr>
+			#import("tablerow")
+			</tr>
+		#endfor
+	</table>
+#endif

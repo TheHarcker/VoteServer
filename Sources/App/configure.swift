@@ -42,3 +42,4 @@ let maxNameLength: Int = 100
 let joinPhraseLength: UInt = 6
 let maxChatLength: UInt = 1000
 let chatQueryLimit: Int = 100
+let messageRateLimiting: (seconds: Double, messages: Int) = (seconds: 10.0, messages: 10)

@@ -4,24 +4,34 @@ import Foundation
 func APIRoutes(_ app: Application, routesGroup API: RoutesBuilder, groupsManager: GroupsManager){
 	let chat = API.grouped("chat")
 	chat.webSocket("socket", onUpgrade: joinChat)
-	
+	chat.webSocket("adminsocket", onUpgrade: joinChat)
+
 	
 	func joinChat(req: Request, socket: WebSocket) async{
-		guard
-			let (group, constituent) = await groupsManager.groupAndVoterForAPI(req: req),
-			//Checks that the constituent is allowed to enter the chat
-			await group.constituentCanChat(constituent)
-		else{
-			try? await socket.close()
+		if req.url.path.hasSuffix("adminsocket") {
+			guard
+				let sessionID = req.session.authenticated(AdminSession.self),
+				let group = await groupsManager.groupForSession(sessionID)
+			else {
+				try? await socket.close()
+				return
+			}
+			await group.socketController.connectAdmin(socket)
 			return
+			
+		} else if req.url.path.hasSuffix("socket") {
+			guard
+				let (group, constituent) = await groupsManager.groupAndVoterForReq(req: req),
+				//Checks that the constituent is allowed to enter the chat
+				await group.constituentCanChat(constituent)
+			else{
+				try? await socket.close()
+				return
+			}
+			await group.socketController.connect(socket, constituent: constituent)
 		}
-		
-		await group.socketController.connect(socket, constituent: constituent)
 	}
-	
-	
-	
-	
+
 	
 	API.get{ _ throws -> Response in
 		throw Abort(.badRequest)

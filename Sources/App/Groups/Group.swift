@@ -3,12 +3,12 @@ import AltVoteKit
 import VoteKit
 import Logging
 import WebSocketKit
-import Fluent
+
 actor Group{
 	typealias VoteID = UUID
 	typealias GroupID = UUID
 
-	internal init(adminSessionID: SessionID, db: Database, name: String, constituents: Set<Constituent>, joinPhrase: JoinPhrase, allowsUnverifiedConstituents: Bool, passwordDigest: String) {
+	internal init(adminSessionID: SessionID, socketController: ChatSocketController, name: String, constituents: Set<Constituent>, joinPhrase: JoinPhrase, allowsUnverifiedConstituents: Bool, passwordDigest: String) {
 		self.adminSessionID = adminSessionID
 		self.name = name
 		self.verifiedConstituents = constituents
@@ -16,7 +16,7 @@ actor Group{
         self.settings = GroupSettings(allowsUnverifiedConstituents: allowsUnverifiedConstituents)
 		self.logger = Logger(label: "Group \"\(name)\":\"\(joinPhrase)\"")
         self.passwordDigest = passwordDigest
-		self.socketController = ChatSocketController(db: db)
+		self.socketController = socketController
 	}
 	
 	/// The name of the group as shown in the UI
@@ -319,10 +319,16 @@ extension Group {
 
 
 	func setStatusFor<V: SupportedVoteType>(_ vote: V, to value: VoteStatus) async{
-        setStatusFor(await vote.id, to: value)
+        await setStatusFor(await vote.id, to: value)
 	}
-    func setStatusFor(_ vote: VoteID, to value: VoteStatus){
-        statusForVote[vote] = value
+    func setStatusFor(_ vote: VoteID, to value: VoteStatus) async{
+		let oldValue = statusForVote[vote]
+		statusForVote[vote] = value
+		
+		// If changed to open, ask clients to reload
+		if oldValue == .closed && value == .open{
+			await socketController.sendToAll(msg: .requestReload, async: true, includeAdmin: false)
+		}
     }
 	
 	/// Adds new votes to the group

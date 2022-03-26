@@ -1,6 +1,7 @@
 struct AdminUIController: UITableManager{
 	var title: String
 	var errorString: String? = nil
+	var hideIfEmpty: Bool = true
 	
 	var buttons: [UIButton] = [
 		.reload,
@@ -49,6 +50,10 @@ struct AdminUIController: UITableManager{
 		
 		
 		rows.sort{ $0.name < $1.name}
+		
+		if await group.settings.chatState != .disabled {
+			self.buttons.append(UIButton(uri: "/admin/chats/", text: "Chats", color: .blue))
+		}
 	}
 	
 	static var template: String = "admin"

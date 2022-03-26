@@ -73,7 +73,7 @@
 
 		#if(isOpen):
 			<form method="POST">
-				<input type="hidden" name="statusChange" value="closed">
+				<input type="hidden" name="statusChange" value="close">
 				<input type="submit" class="button red" value="Close vote">
 			</form>
 		#endif

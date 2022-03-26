@@ -9,17 +9,21 @@ fileprivate struct SocketWrapper{
 }
 
 actor ChatSocketController{
-	var sockets: [ConstituentIdentifier: SocketWrapper] = [:]
-	var adminSocket: WebSocket? = nil
+	private var sockets: [ConstituentIdentifier: SocketWrapper] = [:]
+	private var adminSocket: WebSocket? = nil
 	
-	let db: Database
-	let logger: Logger
+	private let db: Database
+	private var logger: Logger!
 	
-	weak var group: Group?
+	private weak var group: Group?
 	
 	public init(db: Database) {
 		self.db = db
-		self.logger = Logger(label: "Chat socket controller")
+	}
+	
+	func setup(group: Group) {
+		self.group = group
+		self.logger = Logger(label: "Chat socket controller: \(group.joinPhrase)")
 	}
 	
 	private func remove(constituent: ConstituentIdentifier) async{
@@ -49,11 +53,27 @@ actor ChatSocketController{
 				await self?.remove(constituent: constituent.identifier)
 			}
 		}
-		
-	
 	}
 	
-	func send(message: ServerChatProtocol, to sockets: [WebSocket]){
+	func connectAdmin(_ ws: WebSocket) async {
+		if let oldSocket = adminSocket {
+			try? await oldSocket.close()
+		}
+		
+		ws.onBinary { [weak self] ws, buffer in
+			guard let self = self, let data = buffer.getData(at: buffer.readerIndex, length: buffer.readableBytes) else { return }
+			await self.onData(ws, isAdmin: true, data)
+		}
+		
+		ws.onText { [weak self] ws, text in
+			guard let self = self, let data = text.data(using: .utf8) else { return }
+			await self.onData(ws, isAdmin: true, data)
+		}
+	
+		adminSocket = ws
+	}
+	
+	private func send(message: ServerChatProtocol, to sockets: [WebSocket]){
 		do {
 			
 			logger.info("Sending: \(message)")
@@ -71,45 +91,78 @@ actor ChatSocketController{
 	}
 	
 	
-	func onData(_ ws: WebSocket, constituent: Constituent, _ data: Data) async {
-		guard let group = group else {
-			//Removes and closes all sockets
-			let sockets = self.sockets.values.map(\.socket)
-			self.sockets = [:]
-			sockets.forEach { socket in
-				Task{
-					socket.close()
-				}
-			}
-			return
-		}
-		
-		//MARK: Decoding
+	private func onData(_ ws: WebSocket, constituent: Constituent? = nil, isAdmin: Bool = false, _ data: Data) async {
+		assert((constituent != nil) != isAdmin, "onData needs a constituent or an admin")
+
 		let decoder = JSONDecoder()
 		guard let request = try? decoder.decode(ClientChatProtocol.self, from: data) else {
+			if group == nil {
+				self.kickAll(onlyUnverified: false, includeAdmins: true)
+				return
+			}
+			
 			sendER(error: .invalidRequest, to: ws)
 			return
 		}
-		let groupID = group.id
+		
+		await handleRequest(request: request, socket: ws, constituent: constituent, isAdmin: isAdmin)
+	}
+	
+	private func handleRequest(request: ClientChatProtocol, socket ws: WebSocket, constituent: Constituent?, isAdmin: Bool) async{
+		assert((constituent != nil) != isAdmin)
+		
+		guard let group = group else {
+			//Removes and closes all sockets if the group is no longer exsistent
+			self.kickAll(onlyUnverified: false, includeAdmins: true)
+			return
+		}
+		
 		do {
 			switch request{
 			case .query:
-				let chats = try await Chats
+				var qb = Chats
 					.query(on: db)
-					.filter(\.$groupID == groupID)
-					.sort(\.$timestamp)
-					.limit(chatQueryLimit)
-					.all()
-
+					.filter(\.$groupID == group.id)
+					.sort(\.$timestamp, .descending)
+				if !isAdmin{
+					qb = qb.limit(chatQueryLimit)
+				}
+				
+				let chats = try await qb.all()
+			
+				
 				await self.send(message: .newMessages(chats.chatFormat(group: group)), to: ws)
 			case .send(let newMsg):
 				let msg = try checkMessage(msg: newMsg)
 				
-				let chat = Chats(groupID: groupID, sender: constituent.identifier, message: msg)
+				if !isAdmin{
+					// Max n messages pr m seconds pr. constituent
+					let time = Date().advanced(by: -messageRateLimiting.seconds)
+					let count = try await Chats.query(on: db)
+						.filter(\.$groupID == group.id)
+						.filter(\.$sender == constituent!.identifier)
+						.filter(\.$timestamp > time)
+						.count()
+					
+					if count >= messageRateLimiting.messages {
+						sendER(error: .rateLimited, to: ws)
+						return
+						
+					}
+				}
+				let chat = Chats(groupID: group.id, sender: isAdmin ? "Admin" : constituent!.identifier, message: msg, systemsMessage: isAdmin)
 				try await chat.save(on: db)
 				
 				Task{
-					let formatted = await chat.chatFormat(senderName: constituent.name ?? constituent.identifier)
+					let name: String
+					if isAdmin{
+						name = "Admin"
+					} else {
+						name = constituent!.name ?? constituent!.identifier
+					}
+					
+					
+					let formatted = await chat.chatFormat(senderName: name)
 					await sendToAll(msg: .newMessage(formatted))
 				}
 			}
@@ -119,14 +172,13 @@ actor ChatSocketController{
 		catch {
 			logger.report(error: error)
 		}
-			
 	}
 	
 	func close(constituent: ConstituentIdentifier) async{
 		do{
 			try await self.sockets[constituent]?.socket.close()
 		} catch{
-			logger.error("Error while kicking \(constituent) in \(group?.joinPhrase ?? "?") from their chatsocket")
+			logger.error("Error while kicking \(constituent) from their chatsocket")
 		}
 	}
 	
@@ -139,12 +191,12 @@ actor ChatSocketController{
 			toClose.append(adminSocket!)
 		}
 		
-		Task{
+		Task{ [toClose] in
 			for socket in toClose{
 				do{
 					try await socket.close()
 				} catch{
-					logger.error("Error while kicking all \(onlyUnverified ? "unverified" : "") in \(group?.joinPhrase ?? "?") from their chatsocket")
+					logger.error("Error while kicking all \(onlyUnverified ? "unverified" : "") from their chatsocket")
 				}
 				
 			}
@@ -152,9 +204,32 @@ actor ChatSocketController{
 		
 	}
 	
-	func sendToAll(msg: ServerChatProtocol) async{
-		let allSockets: [WebSocket] = sockets.values.map(\.socket)
-		self.send(message: msg, to: allSockets)
+	func sendToAll(msg: ServerChatProtocol, async: Bool = false, includeAdmin: Bool = true) async{
+		
+		if async{
+			Task{ [weak self] in
+				guard let self = self else {return}
+				var allSockets: [WebSocket] = await self.sockets.values.map(\.socket)
+				if includeAdmin && adminSocket != nil{
+					allSockets.append(adminSocket!)
+				}
+				
+				await self.send(message: msg, to: allSockets)
+				
+			}
+		} else {
+			
+			var allSockets: [WebSocket] = sockets.values.map(\.socket)
+			if includeAdmin && adminSocket != nil{
+				allSockets.append(adminSocket!)
+			}
+			
+			self.send(message: msg, to: allSockets)
+		}
+	}
+	
+	deinit{
+		self.kickAll(onlyUnverified: false, includeAdmins: true)
 	}
 }
 

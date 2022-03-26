@@ -24,7 +24,6 @@ enum ServerChatProtocol: Codable{
 	case newMessages([ChatFormat])
 	// The server can request the client to reload the plaza, e.g. if a new vote has opened
 	case requestReload
-	case closeConnection
 	case error(ChatError)
 	
 	static func newMessage(_ chat: ChatFormat) -> Self{

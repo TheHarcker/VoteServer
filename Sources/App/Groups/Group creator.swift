@@ -31,7 +31,13 @@ extension GroupCreatorData{
 			throw GroupCreationError.nameTooLong
 		}
 		do{
+			
 			let constituents = try constituentsListFromCSV(file: self.file!, maxNameLength: maxNameLength)
+			
+			// Checks that no one is using the name or identifier "admin"
+			if (constituents.map(\.identifier) + constituents.compactMap(\.name).map{$0.lowercased()}).contains(where: {$0.contains("admin")}){
+				throw DecodeConstituentError.invalidIdentifier
+			}
 			
 			let set = Set(constituents)
 			

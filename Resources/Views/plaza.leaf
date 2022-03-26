@@ -1,4 +1,13 @@
 #extend("outerHTML"):
+		#export("extraHead"):
+			#if(showChat):
+				<script>
+					const socketName = "socket";
+				</script>
+				<script src="/js/chat.js"></script>
+			#endif
+		#endexport
+
 		#export("body"):
 			<br><hr><br>
 			<h3>Hi #(name), welcome to '#(groupName)'</h3>
@@ -32,5 +41,11 @@
                 #endif
 			#endexport
 		#endextend
+		#if(showChat):
+		<hr>
+				#extend("chatview"):
+				#endextend
+		#endif
+		
 		#endexport
 #endextend
