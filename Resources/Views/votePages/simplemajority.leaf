@@ -1,4 +1,4 @@
-#extend("votePage"):
+#extend("votePages/votePage"):
         #export("VPbody"):
             <form id="voteform" method="POST" onsubmit="lockButton()">
                     #for(option in options):

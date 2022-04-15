@@ -5,7 +5,7 @@ struct SimMajVotePage: VotePage{
     var errorString: String? = nil
     var buttons: [UIButton] = [.backToPlaza]
     
-    static var template: String = "VPsimplemajority"
+    static var template: String = "votePages/simplemajority"
     
     var canVoteBlank: Bool = false
     var hideUI: Bool = false

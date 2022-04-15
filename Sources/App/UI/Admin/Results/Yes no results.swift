@@ -7,7 +7,7 @@ struct YesNoResultsUI: UITableManager{
     var errorString: String? = nil
     var buttons: [UIButton] = [.backToAdmin]
     
-    static var template: String = "RESyesno"
+    static var template: String = "results/yesno"
     
     var tableHeaders: [String] = ["Name", "Yes", "No"]  //The "Blank" column is only added if the vote allows for it
     var showBlank: Bool = false

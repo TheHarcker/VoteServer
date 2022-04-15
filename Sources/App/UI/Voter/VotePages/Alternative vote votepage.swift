@@ -42,7 +42,7 @@ struct AltVotePageGenerator: VotePage{
 		
 	}
 	
-	static var template: String = "VPaltvote"
+	static var template: String = "votePages/altvote"
 	
 	struct PriorityData: Codable{
 		internal init(number: Int, selected: String = "default") {

@@ -7,7 +7,7 @@ struct SimMajResultsUI: UIManager{
     var errorString: String? = nil
     var buttons: [UIButton] = [.backToAdmin]
     
-    static var template: String = "RESsimmaj"
+    static var template: String = "results/simplemajority"
     
     var results: [String]
     
