@@ -46,7 +46,7 @@ extension VoteCreationReceivedData{
         }
 		
         // Checks that no option violates the maxNameLength constant
-        guard options.contains(where: {$0.count <= maxNameLength}) else {
+		guard options.allSatisfy({$0.count <= maxNameLength}) else {
             throw voteCreationError.invalidOptionName
         }
 		

@@ -66,7 +66,7 @@ fileprivate func treat<V: SupportedVoteType>(req: Request, _ type: V.Type, group
         let title = try voteHTTPData.getTitle()
         let partValidators = voteHTTPData.getPartValidators()
         let genValidators = voteHTTPData.getGenValidators()
-        let options = try voteHTTPData.getOptions()
+        var options = try voteHTTPData.getOptions()
 
         // Initialises the vote for the given type
         switch V.enumCase{
@@ -76,6 +76,11 @@ fileprivate func treat<V: SupportedVoteType>(req: Request, _ type: V.Type, group
             let vote = AlternativeVote(name: title, options: options, constituents: await constituents, tieBreakingRules: tieBreakers, genericValidators: genValidators as! [GenericValidator<AlternativeVote.voteType>], particularValidators: partValidators as! [AlternativeVote.particularValidator])
             await group.addVoteToGroup(vote: vote)
         case .yesNo:
+			// If no options are set, the title will be used
+			if options.isEmpty{
+				options = [VoteOption(title)]
+			}
+			
             let vote = yesNoVote(name: title, options: options, constituents: await constituents, genericValidators: genValidators as! [GenericValidator<yesNoVote.yesNoVoteType>], particularValidators: partValidators as! [yesNoVote.particularValidator])
             await group.addVoteToGroup(vote: vote)
         case .simpleMajority:
