@@ -78,7 +78,7 @@ func votingRoutes(_ app: Application, groupsManager: GroupsManager) {
         
         
         if let confirmationStrings = p.1{
-            let voterID = constituent.name ?? constituent.identifier
+            let voterID = constituent.getNameOrId()
             return SuccessfullVoteUI(title: await vote.name, voterID: voterID, priorities: confirmationStrings )
         } else {
             let votePage = await checkAndShow(group: group, constituent: constituent, vote: vote, errorString: p.0?.error.asString(), persistentData: p.0?.data?.asCorrespondingPersistenseData())

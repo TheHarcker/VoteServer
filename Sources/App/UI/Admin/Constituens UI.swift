@@ -95,17 +95,17 @@ struct ConstituentsListUI: UITableManager{
 	struct ConstituentData: Codable{
 		internal init(constituent: Constituent, group: Group, isVerified: Bool) async{
 			self.userID = constituent.identifier
-			self.name = constituent.name ?? ""
-            self.userID64 = constituent.identifier.asURLSafeBase64() ?? ""
+			self.name = constituent.name
+            self.userID64 = constituent.identifier.asURLSafeBase64()
 			self.isVerified = isVerified
 			self.hasJoined = await group.constituentHasJoined(constituent.identifier)
-			self.tag = constituent.tag ?? ""
+			self.tag = constituent.tag
 		}
 		
-		var tag: String
+		var tag: String?
 		var userID: String
-        var userID64: String
-		var name: String
+        var userID64: String?
+		var name: String?
 		var isVerified: Bool
 		var hasJoined: Bool
 	}

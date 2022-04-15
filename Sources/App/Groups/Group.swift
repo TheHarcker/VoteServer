@@ -239,7 +239,7 @@ extension Group{
 		if !verifiedConstituents.contains(const){
 			if unverifiedConstituents.contains(const){
 				assertionFailure()
-				logger.warning("\"\(const.name ?? const.identifier)\" is stored in unverifiedConstituents eventhough it's not joined")
+				logger.warning("\"\(const.getNameOrId())\" is stored in unverifiedConstituents eventhough it's not joined")
                 return false
 			}
 			

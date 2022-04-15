@@ -97,9 +97,9 @@ struct VoteAdminUIController: UITableManager{
 
 struct ConstituentAndStatus: Codable{
 	internal init(constituent: Constituent, hasVoted: Bool, isVerified: Bool) {
-        self.constName = constituent.name ?? constituent.identifier
+        self.constName = constituent.getNameOrId()
         self.constIdentifier = constituent.identifier
-        self.constB64ID = constituent.identifier.asURLSafeBase64() ?? ""
+        self.constB64ID = constituent.identifier.asURLSafeBase64()
         
 		self.hasVoted = hasVoted
 		self.isVerified = isVerified
@@ -107,7 +107,7 @@ struct ConstituentAndStatus: Codable{
 	
     var constName: String
     var constIdentifier: String
-    var constB64ID: String
+    var constB64ID: String?
 	var hasVoted: Bool
 	var isVerified: Bool
 }

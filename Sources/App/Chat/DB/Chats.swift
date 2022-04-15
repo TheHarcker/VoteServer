@@ -71,7 +71,7 @@ extension Array where Element == Chats{
 			if constituents[chat.sender] == nil {
 				let const = await group.constituent(for: chat.sender)
 				
-				constituents[chat.sender] = (const?.name ?? const?.identifier) ?? "[Deleted]"
+				constituents[chat.sender] = const?.getNameOrId() ?? "[Deleted]"
 			}
 			
 			output.append(ChatFormat(id: chat.id!, sender: constituents[chat.sender]!, message: chat.message, timestamp: chat.timestamp, isSystemsMessage: chat.systemsMessage))

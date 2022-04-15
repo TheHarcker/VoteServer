@@ -148,9 +148,9 @@ actor ChatSocketController{
 					if count >= messageRateLimiting.messages {
 						sendER(error: .rateLimited, to: ws)
 						return
-						
 					}
 				}
+				
 				let chat = Chats(groupID: group.id, sender: isAdmin ? "Admin" : constituent!.identifier, message: msg, systemsMessage: isAdmin)
 				try await chat.save(on: db)
 				
@@ -159,7 +159,7 @@ actor ChatSocketController{
 					if isAdmin{
 						name = "Admin"
 					} else {
-						name = constituent!.name ?? constituent!.identifier
+						name = constituent!.getNameOrId()
 					}
 					
 					

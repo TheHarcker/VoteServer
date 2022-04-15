@@ -1,5 +1,5 @@
 struct LoginUI: UIManager{
-    internal init(prefilledJF: String = "", errorString: String? = nil, showRedirectToPlaza: Bool) {
+    internal init(prefilledJF: String? = nil, errorString: String? = nil, showRedirectToPlaza: Bool) {
 		self.errorString = errorString
 		self.prefilledJF = prefilledJF
         
@@ -16,7 +16,7 @@ struct LoginUI: UIManager{
 	
 	var errorString: String?
 	
-	var prefilledJF: String = ""
+	var prefilledJF: String?
 	
 	static var template: String = "login"
 	

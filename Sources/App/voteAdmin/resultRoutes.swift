@@ -61,16 +61,13 @@ func ResultRoutes(_ app: Application, groupsManager: GroupsManager) {
         // Checks the force parameter
         let force = req.url.query?.split(separator: "&").contains("force=1") ?? false
         
-        let vid: UUID?
-        let vname: String?
+		let id = await vote.id()
+		let vname = await vote.name()
+		
         do{
             switch vote {
             case .alternative(let v):
-                vid  = await v.id
-                vname = await v.name
-
                 let winner = try await v.findWinner(force: force, excluding: excluding)
-
 
                 if winner.winners().isEmpty{
                     throw "An issue occured during counting"
@@ -81,26 +78,19 @@ func ResultRoutes(_ app: Application, groupsManager: GroupsManager) {
                 return AVResultsUI(title: "Your '\(await v.name)' vote results", winners: winner, numberOfVotes: await v.votes.count, enabledOptions: enabledOptions, disabledOptions: excluding)
 
             case .yesno(let v):
-                vid  = await v.id
-                vname = await v.name
-
                 let count = try await v.count(force: force)
                 return await YesNoResultsUI(vote: v, count: count)
             case .simplemajority(let v):
-                vid  = await v.id
-                vname = await v.name
-
                 let count = try await v.count(force: force)
 
                 return SimMajResultsUI(title: await v.name, numberOfVotes: await v.votes.count, count: count)
-
             }
 
         } catch {
             guard let er = error as? [VoteValidationResult] else {
                 return genericErrorPage(error: error)
             }
-            return ValidationErrorUI(title: vname ?? "", validationResults: er, voteID: vid ?? UUID())
+            return ValidationErrorUI(title: vname, validationResults: er, voteID: id)
         }
     }
     

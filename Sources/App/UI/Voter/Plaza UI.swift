@@ -23,7 +23,7 @@ struct PlazaUI: UITableManager{
 	
 	internal init(errorString: String? = nil, constituent: Constituent, group: Group) async {
 		self.errorString = errorString
-		self.name = constituent.name ?? constituent.identifier
+		self.name = constituent.getNameOrId()
 		self.groupName = group.name
 
 		self.showChat = await group.constituentCanChat(constituent)
