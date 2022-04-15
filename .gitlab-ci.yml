@@ -9,6 +9,9 @@ unit-test-job:   # This job runs in the test stage.
     - swift
 
   before_script:
+    - apt-get -q update
+    - apt-get -q dist-upgrade -y
+    - apt-get install -y libsqlite3-dev
     - swift package resolve
     - swift package update
     
