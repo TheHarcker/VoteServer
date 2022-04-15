@@ -2,8 +2,8 @@ import Vapor
 /// Defines the /create path and its logic
 func groupCreationRoutes(_ app: Application, groupsManager: GroupsManager) {
 	app.get("create", use: GroupCreatorUI.init)
-    
-	app.post("create"){ req async throws -> Response in
+	app.post("create", use: createGroup)
+	func createGroup(req: Request) async throws -> GroupCreatorUI{
 		var groupData: GroupCreatorData?
 		do{
 			groupData = try req.content.decode(GroupCreatorData.self)
@@ -14,15 +14,15 @@ func groupCreationRoutes(_ app: Application, groupsManager: GroupsManager) {
 			
 			// Saves the group
 			guard await groupsManager.createGroup(session: session.sessionID, db: req.db, name: try groupData.getGroupName(), constituents: try groupData.getConstituents(), pwdigest: try groupData.getHashedPassword(for: req), allowsUnverified: groupData.allowsUnverified()) else {
-                throw Abort(.internalServerError)
-            }
+				throw Abort(.internalServerError)
+			}
 			
 			//Registers the session with the client
 			req.session.authenticate(session)
 		} catch {
-			return (try? await GroupCreatorUI(errorString: error.asString(), groupData).encodeResponse(for: req)) ?? req.redirect(to: .create)
+			return GroupCreatorUI(errorString: error.asString(), groupData)
 		}
 		
-		return req.redirect(to: .admin)
+		throw Redirect(.admin)
 	}
 }

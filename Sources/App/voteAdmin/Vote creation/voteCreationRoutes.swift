@@ -3,49 +3,40 @@ import VoteKit
 import AltVoteKit
 func voteCreationRoutes(_ app: Application, groupsManager: GroupsManager) {
     /// Shows admins a page which'' let them create the kind of vote supplied in the "type" parameter
-    app.get("createvote", ":type") { req async throws -> Response in
-        guard
-            let sessionID = req.session.authenticated(AdminSession.self),
-             await groupsManager.groupForSession(sessionID) != nil
-        else {
-            return req.redirect(to: .create)
-        }
-        
-        guard let parameter = req.parameters.get("type"), let type = VoteTypes.StringStub(rawValue: parameter) else {
-            return req.redirect(to: .admin)
-        }
-        
-        switch type {
-        case .alternative:
-            return try await showUI(for: req, AlternativeVote.self)
-        case .yesNo:
-            return try await showUI(for: req, yesNoVote.self)
-        case .simpleMajority:
-            return try await showUI(for: req, SimpleMajority.self)
-        }
-    }
-    
-    app.post("createvote", ":type") { req async throws -> Response in
-        guard
-            let sessionID = req.session.authenticated(AdminSession.self),
-            let group = await groupsManager.groupForSession(sessionID)
-        else {
-            return req.redirect(to: .create)
-        }
-        guard let parameter = req.parameters.get("type"), let type = VoteTypes.StringStub(rawValue: parameter) else {
-            return req.redirect(to: .admin)
-        }
-        
-        switch type {
-        case .alternative:
-            return try await treat(req: req, AlternativeVote.self, group: group)
-        case .yesNo:
-            return try await treat(req: req, yesNoVote.self, group: group)
-        case .simpleMajority:
-            return try await treat(req: req, SimpleMajority.self, group: group)
-        }
-        
-    }
+    app.get("createvote", ":type", use: createVote)
+	app.post("createvote", ":type", use: createVote)
+	func createVote(req: Request) async throws -> Response{
+		guard
+			let sessionID = req.session.authenticated(AdminSession.self),
+			let group = await groupsManager.groupForSession(sessionID)
+		else {
+			throw Redirect(.create)
+		}
+		guard let parameter = req.parameters.get("type"), let type = VoteTypes.StringStub(rawValue: parameter) else {
+			throw Redirect(.admin)
+		}
+		
+		if req.method == .POST{
+		
+		switch type {
+		case .alternative:
+			return try await treat(req: req, AlternativeVote.self, group: group)
+		case .yesNo:
+			return try await treat(req: req, yesNoVote.self, group: group)
+		case .simpleMajority:
+			return try await treat(req: req, SimpleMajority.self, group: group)
+		}
+		} else {
+			switch type {
+			case .alternative:
+				return try await showUI(for: req, AlternativeVote.self)
+			case .yesNo:
+				return try await showUI(for: req, yesNoVote.self)
+			case .simpleMajority:
+				return try await showUI(for: req, SimpleMajority.self)
+			}
+		}
+	}
 }
 
 /// Attempts to create a vote for a given request

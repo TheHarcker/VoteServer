@@ -7,7 +7,7 @@ import FluentSQLiteDriver
 public func configure(_ app: Application) throws {
     // Allow static files to be served from /Public
 	app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
-
+	
 	// Adds support for using leaf to render views
     app.views.use(.leaf)
 	
@@ -15,7 +15,6 @@ public func configure(_ app: Application) throws {
 	app.databases.use(.sqlite(.file("db.sqlite")), as: .sqlite)
 
 	app.migrations.add(CreateChats())
-	
 	app.migrations.add(SessionRecord.migration)
 
 	try app.autoMigrate().wait()
@@ -34,6 +33,9 @@ public func configure(_ app: Application) throws {
     // Enables CLI
     setupCommands(groupsManager: groupsManager, app: app)
     
+	// Handle errors resulting in a redirect
+	app.middleware.use(RedirectErrorHandler())
+
     // Register routes
     try routes(app, groupsManager: groupsManager)
 }

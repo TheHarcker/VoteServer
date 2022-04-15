@@ -5,7 +5,7 @@
             #if(canVoteBlank):
             <form id="voteblankform" method="POST" onsubmit="lockButton()">
                 <input type="hidden" id="blank" name="blank" value="true">
-                <input type="submit" name="lockableButton" class="gray button" value="Vote blank">
+                <input type="submit" name="lockableButton" class="gray button" value="Cast a blank vote">
             </form>
             #endif
             #endif

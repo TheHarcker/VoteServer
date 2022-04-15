@@ -7,58 +7,54 @@ func groupJoinRoutes(_ app: Application, groupsManager: GroupsManager) {
         return GroupJoinUI(title: "Join", showRedirectToPlaza: showRedirectToPlaza)
 	}
 	
-	app.get("join", ":joinphrase"){req async throws -> Response in
+	// Prefills the field with the joinphrase and redirects invalid joinphrases
+	app.get("join", ":joinphrase", use: joinWithPhrase)
+	func joinWithPhrase(req: Request) async throws -> GroupJoinUI{
 		guard
 			let jf = req.parameters.get("joinphrase"),
 			let group = await groupsManager.groupForJoinPhrase(jf)
 		else {
-			return req.redirect(to: .join)
+			throw Redirect(.join)
 		}
-        let showRedirectToPlaza = await groupsManager.groupAndVoterForReq(req: req) != nil
-		return try await GroupJoinUI(title: group.name, joinPhrase: jf, showRedirectToPlaza: showRedirectToPlaza).encodeResponse(for: req)
+		let showRedirectToPlaza = await groupsManager.groupAndVoterForReq(req: req) != nil
+		return GroupJoinUI(title: group.name, joinPhrase: jf, showRedirectToPlaza: showRedirectToPlaza)
 	}
 	
-	app.post("join") { req async throws in
-        try await joinGroup(req, groupsManager, forAPI: false)
-	}
-	
-	app.post("join", ":joinphrase") { req async throws in
+	app.post("join", use: postJoin)
+	app.post("join", ":joinphrase", use: postJoin)
+	func postJoin(req: Request) async throws -> Response{
 		try await joinGroup(req, groupsManager, forAPI: false)
 	}
 	
-	
-	app.get("plaza"){req async -> Response in
+	// Shows a plaza containing votes available for the user and a chatfield
+	app.get("plaza", use: getPlaza)
+	func getPlaza(req: Request) async throws -> PlazaUI {
 		guard let (group, constituent) = await groupsManager.groupAndVoterForReq(req: req) else {
-			return req.redirect(to: .join)
+			throw Redirect(.join)
 		}
 		
-		let controller = await PlazaUI(constituent: constituent, group: group)
-		
-		return (try? await controller.encodeResponse(for: req)) ?? req.redirect(to: .join)
+		return await PlazaUI(constituent: constituent, group: group)
 	}
     
-    app.post("plaza"){ req async -> Response in
-        guard let (group, constituent) = await groupsManager.groupAndVoterForReq(req: req) else {
-            return req.redirect(to: .join)
-        }
-        
-        if
-            await group.settings.constituentsCanSelfResetVotes,
-            let deleteID = (try? req.content.decode([String:String].self))?["deleteId"],
-            let voteID = UUID(deleteID),
-            let vote = await group.voteForID(voteID),
-            await group.statusFor(voteID) == .open
-        {
-            await group.singleVoteReset(vote: vote, constituentID: constituent.identifier)
-            return req.redirect(to: .plaza)
-        }
-        
-        
-        let controller = await PlazaUI(constituent: constituent, group: group)
-        
-        return (try? await controller.encodeResponse(for: req)) ?? req.redirect(to: .join)
-    }
-    
+	app.post("plaza", use: postPlaza)
+	func postPlaza(req: Request) async throws -> PlazaUI{
+		guard let (group, constituent) = await groupsManager.groupAndVoterForReq(req: req) else {
+			throw Redirect(.join)
+		}
+		
+		if
+			await group.settings.constituentsCanSelfResetVotes,
+			let deleteID = (try? req.content.decode([String:String].self))?["deleteId"],
+			let voteID = UUID(deleteID),
+			let vote = await group.voteForID(voteID),
+			await group.statusFor(voteID) == .open
+		{
+			await group.singleVoteReset(vote: vote, constituentID: constituent.identifier)
+		}
+		
+		
+		return await PlazaUI(constituent: constituent, group: group)
+	}
 }
 
 
@@ -84,7 +80,7 @@ enum joinGroupErrors: ErrorString, Equatable{
 
 
 
-
+//Used by the HTML client and the API to join groups
 func joinGroup(_ req: Request, _ groupsManager: GroupsManager, forAPI: Bool) async throws -> Response{
 	struct JoinGroupData: Codable{
 		var userID: String

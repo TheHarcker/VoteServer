@@ -8,7 +8,7 @@ struct UIButton: Codable{
 		self.downloadable = downloadable
 	}
 	
-	internal init(uri: redirectionPaths, text: String, color: ButtonColors, lockable: Bool = false) {
+	internal init(uri: RedirectionPaths, text: String, color: ButtonColors, lockable: Bool = false) {
 		self.init(uri: "/" + uri.stringValue() + "/", text: text, color: color, lockable: lockable, downloadable: false)
 	}
 	

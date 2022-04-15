@@ -6,46 +6,49 @@ import AltVoteKit
 func votingRoutes(_ app: Application, groupsManager: GroupsManager) {
     
     /// Shows the voting ui for the supplied voteID
-    app.get("vote", ":voteID") { req async throws -> Response in
-        guard let (group, vote, constituent) = await voteGroupAndUserID(for: req) else{
-            return req.redirect(to: .plaza)
-        }
-        switch vote {
-        case .alternative(let v):
-            return try await checkAndShow(group: group, constituent: constituent, vote: v).encodeResponse(for: req)
-        case .yesno(let v):
-            return try await checkAndShow(group: group, constituent: constituent, vote: v).encodeResponse(for: req)
-        case .simplemajority(let v):
-            return try await checkAndShow(group: group, constituent: constituent, vote: v).encodeResponse(for: req)
-        }
-        
-    }
+	app.get("vote", ":voteID", use: getVote)
+	func getVote(req: Request) async throws -> View{
+		guard let (group, vote, constituent) = await voteGroupAndUserID(for: req) else{
+			throw Redirect(.plaza)
+		}
+		switch vote {
+		case .alternative(let v):
+			return try await checkAndShow(group: group, constituent: constituent, vote: v).render(for: req)
+		case .yesno(let v):
+			return try await checkAndShow(group: group, constituent: constituent, vote: v).render(for: req)
+		case .simplemajority(let v):
+			return try await checkAndShow(group: group, constituent: constituent, vote: v).render(for: req)
+		}
+		
+		
+	}
     
     /// Receives the vote the constituent wants to cast, and either accepts the vote or an error will be shown to the user
-    app.post("vote", ":voteID") { req async throws -> Response in
+	app.post("vote", ":voteID", use: postVote)
+	func postVote(req: Request) async throws -> View {
         guard let (group, vote, constituent) = await voteGroupAndUserID(for: req) else{
-            return req.redirect(to: .plaza)
+			throw Redirect(.plaza)
         }
         
         // Checks that the vote is open, otherwise the relevant votepage will be shown in the closed mode
         guard await group.statusFor(await vote.id()) == .open else {
             switch vote {
             case .alternative(let v):
-                return try await AltVotePageGenerator.closed(title: v.name).encodeResponse(for: req)
+				return try await AltVotePageGenerator.closed(title: v.name).render(for: req)
             case .yesno(let v):
-                return try await YesNoVotePage.closed(title: v.name).encodeResponse(for: req)
+                return try await YesNoVotePage.closed(title: v.name).render(for: req)
             case .simplemajority(let v):
-                return try await SimMajVotePage.closed(title: v.name).encodeResponse(for: req)
+                return try await SimMajVotePage.closed(title: v.name).render(for: req)
             }
         }
         
         switch vote {
         case .alternative(let v):
-            return try await d(group: group, vote: v, constituent: constituent, req: req).encodeResponse(for: req)
+            return try await d(group: group, vote: v, constituent: constituent, req: req).render(for: req)
         case .yesno(let v):
-            return try await d(group: group, vote: v, constituent: constituent, req: req).encodeResponse(for: req)
+            return try await d(group: group, vote: v, constituent: constituent, req: req).render(for: req)
         case .simplemajority(let v):
-            return try await d(group: group, vote: v, constituent: constituent, req: req).encodeResponse(for: req)
+            return try await d(group: group, vote: v, constituent: constituent, req: req).render(for: req)
         }
     }
     
