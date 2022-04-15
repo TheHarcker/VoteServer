@@ -58,6 +58,8 @@ actor Group{
 	
 	
 	let socketController: ChatSocketController
+	
+	var emailHashCache: [String: String] = [:]
 }
 
 //MARK: Change settings
