@@ -2,7 +2,7 @@
 		#export("body"):
 			<br><hr>
 			#if(showsTags):
-				<h3>Is participating</h3>
+				<h3>Participants</h3>
 				<ul>
 				#for(stat in tagStats):
 				<li>#(stat)</li>

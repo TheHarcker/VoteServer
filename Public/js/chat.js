@@ -38,7 +38,7 @@ if (socketName) {
 		sendMessageButton.disabled = true;
 		
 		let h1 = document.createElement('h1');
-		let text = document.createTextNode("The connection was closed");
+		let text = document.createTextNode("The connection was closed at: " + new Date(time).toLocaleString());
 		h1.appendChild(text);
 		chatarea.prepend(h1);
 		console.log("Socket closed")
@@ -75,7 +75,7 @@ socket.addEventListener("message", event => {
 				});
 				
 			} else if (msg.requestReload){
-				if (confirm('The server wants you to reload')) {
+				if (confirm('A vote opened\nThe server wants you to reload')) {
 					socket.close()
 					
 					location.reload();

@@ -79,9 +79,6 @@ actor ChatSocketController{
 	
 	private func send(message: ServerChatProtocol, to sockets: [WebSocket]){
 		do {
-			
-			logger.info("Sending: \(message)")
-			
 			let encoder = JSONEncoder()
 			let data = try encoder.encode(message)
 			
