@@ -1,12 +1,32 @@
 #extend("outerHTML"):
+		#export("extraHead"):
+			<script>
+			window.onload = function() {
+				let link = document.getElementById('joinLink');
+				let QR = document.getElementById('joinQR');
+			
+			
+				if (location.port == "80"){
+					var loc = location.hostname;
+				} else {
+					var loc = location.hostname + ":" + location.port;
+				}
+				
+				link.innerText = loc + "/join/#(groupJoinLink)/";
+			
+				QR.src = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" + location.protocol + "//" + loc + "/join/#(groupJoinLink)/";
+			};
+			</script>
+		#endexport
+		
 		#export("body"):
-			Join link: <b><a href="/join/#(groupJoinLink)/">vote.smkid.dk/join/#(groupJoinLink)/</a></b>
+			Join link: <b><a href="/join/#(groupJoinLink)/" id="joinLink"></a></b>
 			<br>
 			Join phrase: <b>#(groupJoinLink)</b>
-			<br><img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://vote.smkid.dk/join/#(groupJoinLink)" border="2">
+			<br><img border="2", id="joinQR"></img>
 			<!--
 			Alternative Google QR generation API
-			<br><img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=https://vote.smkid.dk/join/#(groupJoinLink)" border="2">-->
+			<br><img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=https://vote.smkid.dk/join/#(groupJoinLink)" border="2", id="joinQR"></img>-->
 
 			<br><br>
 			#extend("table"):
