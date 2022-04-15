@@ -76,7 +76,7 @@ extension VoteCreationReceivedData{
 			case .optionAddedMultipleTimes:
 				return "An option has been added multiple times"
 			case .lessThanNOptions(let n):
-				return "A vote needs atleast \(n) options"
+				return "A vote needs at least \(n) options"
             case .invalidOptionName:
                 return "At least one of the options has an invalid name"
 			}
