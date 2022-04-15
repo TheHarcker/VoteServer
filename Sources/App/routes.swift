@@ -3,10 +3,8 @@ import AltVoteKit
 
 /// Calls all route creaters, which inturn registers and handles the available paths in the app
 func routes(_ app: Application, groupsManager: GroupsManager) throws {
-	app.get { req in
-		req.redirect(to: .create)
-	}
-
+	app.redirectGet(to: .create)
+	
 	groupCreationRoutes(app, groupsManager: groupsManager)
 	voteCreationRoutes(app, groupsManager: groupsManager)
 	votingRoutes(app, groupsManager: groupsManager)

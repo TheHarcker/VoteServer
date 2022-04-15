@@ -2,9 +2,10 @@ import Vapor
 import VoteKit
 import Foundation
 func groupJoinRoutes(_ app: Application, groupsManager: GroupsManager) {
-	app.get("join"){ req async -> GroupJoinUI in
-        let showRedirectToPlaza = await groupsManager.groupAndVoterForReq(req: req) != nil
-        return GroupJoinUI(title: "Join", showRedirectToPlaza: showRedirectToPlaza)
+	app.get("join", use: getJoin)
+	func getJoin(req: Request) async -> GroupJoinUI {
+		let showRedirectToPlaza = await groupsManager.groupAndVoterForReq(req: req) != nil
+		return GroupJoinUI(title: "Join", showRedirectToPlaza: showRedirectToPlaza)
 	}
 	
 	// Prefills the field with the joinphrase and redirects invalid joinphrases

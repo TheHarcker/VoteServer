@@ -8,6 +8,7 @@ func adminRoutes(_ app: Application, groupsManager: GroupsManager) {
 	let voteadmin = app.grouped("voteadmin")
 	let login = app.grouped("login")
 
+	voteadmin.redirectGet(to: .admin)
 	
 	admin.get(use: getAdminPage)
 	func getAdminPage(req: Request) async throws -> AdminUIController {
@@ -21,10 +22,6 @@ func adminRoutes(_ app: Application, groupsManager: GroupsManager) {
 		
 		return await AdminUIController(for: group)
 	}
-	
-	voteadmin.get{ req -> Response in
-        return req.redirect(to: .admin)
-    }
     
 	// Changes the open/closed status of the vote passed as ":voteID"
 	voteadmin.get(":voteID", ":command", use: setStatus)

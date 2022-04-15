@@ -3,13 +3,8 @@ import AltVoteKit
 import VoteKit
 
 func ResultRoutes(_ app: Application, groupsManager: GroupsManager) {
-	app.get("results"){ req -> Response in
-		req.redirect(to: .admin)
-	}
-
-    app.get("results", ":voteID"){ req -> Response in
-        req.redirect(to: .admin)
-    }
+	app.redirectGet("results", to: .admin)
+	app.redirectGet("results", ":voteID", to: .admin)
 
 	app.post("results", ":voteID", use: showResults)
 	func showResults(req: Request) async throws -> Response {

@@ -59,3 +59,13 @@ extension RedirectionPaths: AsyncResponseEncodable, ResponseEncodable{
 		req.eventLoop.makeSucceededFuture(req.redirect(to: self))
 	}
 }
+
+// Enables creating routes directly for redirection
+extension RoutesBuilder {
+	@discardableResult
+	func redirectGet(_ path: PathComponent..., to: RedirectionPaths) -> Route{
+		return self.on(.GET, path){ req in
+			req.redirect(to: to)
+		}
+	}
+}
