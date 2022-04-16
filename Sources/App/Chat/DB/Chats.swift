@@ -62,26 +62,22 @@ extension Array where Element == Chats{
 			fatalError("Chatformat called for messages from different groups")
 		}
 		
-		
-		var constituents = [String: String]()
+		// [ConstituentIdentifier: (ScreenName, gravatar.com + Email hash)]
+		var constituents = [String: (name: String, imageURL: String?)]()
 		var output = [ChatFormat]()
-		constituents["Admin"] = "Admin"
+		constituents["Admin"] = ("Admin", "https://c.tenor.com/xTel3SMPEYUAAAAd/supreme-leader-say-yes.gif")
 		
 		for chat in self{
 			if constituents[chat.sender] == nil {
 				let const = await group.constituent(for: chat.sender)
+				let imageURL = await group.getGravatarURLForConst(const)
 				
-				constituents[chat.sender] = const?.getNameOrId() ?? "[Deleted]"
+				constituents[chat.sender] = (name: const?.getNameOrId() ?? "[Deleted]", imageURL: imageURL)
 			}
 			
-			let imageURL: String?
-			if let email = Optional("hharck2@gmail.com"), let hash = await group.getHashFor(email) {
-				imageURL = "https://www.gravatar.com/avatar/" + hash
-			} else {
-				imageURL = nil
-			}
+			let c = constituents[chat.sender]!
 			
-			output.append(ChatFormat(id: chat.id!, sender: constituents[chat.sender]!, message: chat.message, imageURL: imageURL, timestamp: chat.timestamp, isSystemsMessage: chat.systemsMessage))
+			output.append(ChatFormat(id: chat.id!, sender: c.name, message: chat.message, imageURL: c.imageURL, timestamp: chat.timestamp, isSystemsMessage: chat.systemsMessage))
 		}
 		return output
 	}

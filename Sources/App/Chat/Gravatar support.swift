@@ -1,7 +1,10 @@
 import Crypto
+import VoteKit
 extension Group{
-	func getHashFor(_ email: String) -> String?{
-		let trim = email.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+	fileprivate func getHashFor(_ email: String?) -> String?{
+		guard let trim = email?.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) else {
+			return nil
+		}
 		
 		// Validates that email is in the form "*@*.@"
 		guard
@@ -29,5 +32,30 @@ extension Group{
 		
 			return hash
 		}
+	}
+	
+	func getGravatarURLForConst(_ const: Constituent?, size: UInt? = nil) -> String{
+		if let hash = self.getHashFor(const?.email) {
+			let sParam: String
+			if size != nil {
+				sParam = "&s=\(size!)"
+			} else {
+				sParam = ""
+			}
+			
+			return "https://www.gravatar.com/avatar/" + hash + "?d=mp" + sParam
+		} else {
+			return getDefaultGravatar(size: size)
+		}
+	}
+	
+	func getDefaultGravatar(size: UInt? = nil)->String{
+		let sParam: String
+		if size != nil {
+			sParam = "&s=\(size!)"
+		} else {
+			sParam = ""
+		}
+		return "https://www.gravatar.com/avatar?d=mp" + sParam
 	}
 }

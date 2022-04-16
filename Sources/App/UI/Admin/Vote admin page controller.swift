@@ -4,7 +4,7 @@ struct VoteAdminUIController: UITableManager{
 	let title: String
 	var errorString: String? = nil
 
-	var tableHeaders = ["User id", "Name", "Has voted", "Verified", ""]
+	var tableHeaders = ["", "User id", "Name", "Has voted", "Verified", ""]
 	let rows: [ConstituentAndStatus]
 	
 	var buttons: [UIButton] = [.backToAdmin, .reload]
@@ -70,18 +70,22 @@ struct VoteAdminUIController: UITableManager{
         let verified = await group.verifiedConstituents
         let unverified = await group.unverifiedConstituents
 
+		
+		let defaultImageURL = await group.getDefaultGravatar(size: 30)
         //NB: Three seperate loops gives a worst case complexity of O(k + ln(k)*m+ln(k+m)*n), instead of nested loops which has a worst case scenario of O(k*(m*ln(k)+n*ln(k+m))
         votes.forEach { vote in
-            tempRows[vote.constituent] = ConstituentAndStatus(constituent: vote.constituent, hasVoted: true, isVerified: false)
+            tempRows[vote.constituent] = ConstituentAndStatus(constituent: vote.constituent, hasVoted: true, isVerified: false, imageURL: defaultImageURL)
         }
         
-        verified.forEach { const in
-            if tempRows[const] != nil {
-                tempRows[const]!.isVerified = true
-            } else {
-                tempRows[const] = ConstituentAndStatus(constituent: const, hasVoted: false, isVerified: true)
-            }
-        }
+		for const in verified{
+			let imageURL = await group.getGravatarURLForConst(const, size: 30)
+			if tempRows[const] != nil {
+				tempRows[const]!.isVerified = true
+				tempRows[const]!.imageURL = imageURL
+			} else {
+				tempRows[const] = ConstituentAndStatus(constituent: const, hasVoted: false, isVerified: true, imageURL: imageURL)
+			}
+		}
         
         unverified.forEach { const in
             if tempRows[const] == nil {
@@ -96,13 +100,14 @@ struct VoteAdminUIController: UITableManager{
 }
 
 struct ConstituentAndStatus: Codable{
-	internal init(constituent: Constituent, hasVoted: Bool, isVerified: Bool) {
+	internal init(constituent: Constituent, hasVoted: Bool, isVerified: Bool, imageURL: String? = nil) {
         self.constName = constituent.getNameOrId()
         self.constIdentifier = constituent.identifier
         self.constB64ID = constituent.identifier.asURLSafeBase64()
         
 		self.hasVoted = hasVoted
 		self.isVerified = isVerified
+		self.imageURL = imageURL
 	}
 	
     var constName: String
@@ -110,4 +115,5 @@ struct ConstituentAndStatus: Codable{
     var constB64ID: String?
 	var hasVoted: Bool
 	var isVerified: Bool
+	var imageURL: String?
 }

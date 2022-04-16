@@ -12,6 +12,7 @@
 			<h3>All constituents</h3>
 			#extend("table"):
 				#export("tablerow"):
+					<td><img src="#(row.imageURL)"></img></td>
 					<td>#(row.userID)</td>
 					<td>#(row.name)</td>
 					#if(showsTags):

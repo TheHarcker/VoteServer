@@ -39,12 +39,16 @@ extension GroupCreatorData{
 				throw DecodeConstituentError.invalidIdentifier
 			}
 			
-			let set = Set(constituents)
-			
-			if set.count != constituents.count {
+			guard constituents.map(\.identifier).nonUniques().isEmpty else {
 				throw GroupCreationError.userAddedMultipleTimes
 			}
+			guard constituents.compactMap(\.email).nonUniques().isEmpty else {
+				throw GroupCreationError.emailAddedMultipleTimes
+
+			}
+				  
 			
+			let set = Set(constituents)
 			return set
 			
 		} catch let er as DecodeConstituentError{
@@ -57,6 +61,8 @@ extension GroupCreatorData{
 				throw GroupCreationError.invalidCSV
 			case .invalidTag:
 				throw GroupCreationError.invalidTag
+			case .invalidEmail:
+				throw GroupCreationError.invalidEmail
 			}
 		}
 	}
@@ -79,13 +85,17 @@ enum GroupCreationError: ErrorString{
 		case .invalidPassword:
 			return "The password is either too short or too simple."
 		case .invalidCSV:
-			return "The supplied CSV file was invalid, the separators needs to be \",\" and newlines. Check that the header row is \"Name,Identifier,Tag\"."
+			return "The supplied CSV file was invalid, the separators needs to be \",\" and newlines. Check that the header row is \"Name,Identifier,Tag,Email\". Tag and Email are optional."
 		case .nameTooLong:
 			return "One of the supplied constituents has a name/identifier/tag which surpasses the maximum name length."
 		case .invalidTag:
 			return "One of the supplied tags are invalid, either by having the prefix \"-\" or exceeding the length limit."
+		case .invalidEmail:
+			return "One of the supplied emails are invalid"
+		case .emailAddedMultipleTimes:
+			return "An email was added multiple times"
 		}
 	}
 	
-	case userAddedMultipleTimes, invalidIdentifier, invalidGroupname, invalidPassword, invalidCSV, nameTooLong, invalidTag
+	case userAddedMultipleTimes, invalidIdentifier, invalidGroupname, invalidPassword, invalidCSV, nameTooLong, invalidTag, invalidEmail, emailAddedMultipleTimes
 }

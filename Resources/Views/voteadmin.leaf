@@ -38,6 +38,7 @@
 		<h4><b>#(voteCount) of #(constituentsCount) constituents has voted</b></h4>
 		#extend("table"):
 			#export("tablerow"):
+				<td><img src="#(row.imageURL)"></img></td>
 				<td>#(row.constIdentifier)</td>
 				<td>#(row.constName)</td>
 	

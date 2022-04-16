@@ -85,7 +85,7 @@ func adminRoutes(_ app: Application, groupsManager: GroupsManager) {
 			let sessionID = req.session.authenticated(AdminSession.self),
 			let group = await groupsManager.groupForSession(sessionID)
 		else {
-			throw Redirect(.constituents)
+			throw Redirect(.admin)
 		}
 		
 		if req.method == .POST,

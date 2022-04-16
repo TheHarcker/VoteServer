@@ -156,20 +156,17 @@ actor ChatSocketController{
 				
 				Task{
 					let name: String
+					let imageURL: String?
+
 					if isAdmin{
 						name = "Admin"
+						imageURL = "https://c.tenor.com/xTel3SMPEYUAAAAd/supreme-leader-say-yes.gif"
 					} else {
 						name = constituent!.getNameOrId()
+						imageURL = await group.getGravatarURLForConst(constituent)
 					}
 					
-					let mailHash: String?
-					if let email = Optional("hharck2@gmail.com"), let hash = await group.getHashFor(email) {
-						mailHash = "https://www.gravatar.com/avatar/" + hash 
-					} else {
-						mailHash = nil
-					}
-					
-					let formatted = await chat.chatFormat(senderName: name, imageURL: mailHash)
+					let formatted = await chat.chatFormat(senderName: name, imageURL: imageURL)
 					await sendToAll(msg: .newMessage(formatted))
 				}
 			}

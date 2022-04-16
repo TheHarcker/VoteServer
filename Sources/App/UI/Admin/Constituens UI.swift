@@ -30,23 +30,25 @@ struct ConstituentsListUI: UITableManager{
 		
 		self.showsTags = await group.settings.showTags
 		if self.showsTags {
-			self.tableHeaders = ["User id", "Name", "Tag", "Is verified", ""]
+			self.tableHeaders = ["","User id", "Name", "Tag", "Is verified", ""]
 			if !verified.isEmpty || !unverified.isEmpty{
 				let joined = await Set(group.joinedConstituentsByID.keys)
 				self.tagStats = generateStats(verified: verified, unverified: unverified, joined: joined)
 			}
 		} else {
-			self.tableHeaders = ["User id", "Name", "Is verified", ""]
+			self.tableHeaders = ["","User id", "Name", "Is verified", ""]
 		}
 		
 		
 		for const in verified{
-			rows.append(await ConstituentData(constituent: const, group: group, isVerified: true))
-			
+			let imageURL = await group.getGravatarURLForConst(const, size: 30)
+			rows.append(await ConstituentData(constituent: const, group: group, isVerified: true, imageURL: imageURL))
 		}
 		
+		let defaultImageURL = await group.getDefaultGravatar(size: 30)
 		for const in unverified {
-			rows.append(await ConstituentData(constituent: const, group: group, isVerified: false))
+			
+			rows.append(await ConstituentData(constituent: const, group: group, isVerified: false, imageURL: defaultImageURL))
 		}
 		
 		rows.sort{$0.userID < $1.userID}
@@ -93,20 +95,22 @@ struct ConstituentsListUI: UITableManager{
 	
 	
 	struct ConstituentData: Codable{
-		internal init(constituent: Constituent, group: Group, isVerified: Bool) async{
+		internal init(constituent: Constituent, group: Group, isVerified: Bool, imageURL: String?) async{
 			self.userID = constituent.identifier
 			self.name = constituent.name
             self.userID64 = constituent.identifier.asURLSafeBase64()
 			self.isVerified = isVerified
 			self.hasJoined = await group.constituentHasJoined(constituent.identifier)
 			self.tag = constituent.tag
+			self.imageURL = imageURL
 		}
 		
-		var tag: String?
-		var userID: String
-        var userID64: String?
-		var name: String?
-		var isVerified: Bool
-		var hasJoined: Bool
+		let tag: String?
+		let userID: String
+        let userID64: String?
+		let name: String?
+		let isVerified: Bool
+		let hasJoined: Bool
+		let imageURL: String?
 	}
 }
