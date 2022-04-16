@@ -1,5 +1,6 @@
 #if(count(rows) != 0 || !hideIfEmpty):
 	<table>
+		<tbody>
     	#if(count(tableHeaders) != 0):
 		<tr>
 		#for(head in tableHeaders):
@@ -13,5 +14,6 @@
 			#import("tablerow")
 			</tr>
 		#endfor
+		</tbody>	
 	</table>
 #endif

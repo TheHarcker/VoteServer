@@ -67,14 +67,12 @@ func adminRoutes(_ app: Application, groupsManager: GroupsManager) {
 			// Checks if any status change is requested
 			if let status = (try? req.content.decode([String:VoteStatus].self))?["statusChange"] {
 				await group.setStatusFor(await vote.id(), to: status)
-				
-				return await VoteAdminUIController(vote: vote, group: group)
-			} else {
-				return await VoteAdminUIController(vote: vote, group: group)
 			}
 			
+			return await VoteAdminUIController(vote: vote, group: group)
+
 		} else {
-			throw Redirect(.admin)
+			return await VoteAdminUIController(vote: vote, group: group)
 		}
      
 	}

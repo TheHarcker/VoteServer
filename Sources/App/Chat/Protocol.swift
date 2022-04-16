@@ -13,6 +13,9 @@ struct ChatFormat: Codable{
 	// Content of a message
 	var message: String
 	
+	// The senders gravatarHash
+	var imageURL: String?
+	
 	// When the message was send
 	var timestamp: Date
 	

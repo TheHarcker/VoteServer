@@ -162,8 +162,14 @@ actor ChatSocketController{
 						name = constituent!.getNameOrId()
 					}
 					
+					let mailHash: String?
+					if let email = Optional("hharck2@gmail.com"), let hash = await group.getHashFor(email) {
+						mailHash = "https://www.gravatar.com/avatar/" + hash 
+					} else {
+						mailHash = nil
+					}
 					
-					let formatted = await chat.chatFormat(senderName: name)
+					let formatted = await chat.chatFormat(senderName: name, imageURL: mailHash)
 					await sendToAll(msg: .newMessage(formatted))
 				}
 			}

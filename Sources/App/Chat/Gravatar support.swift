@@ -6,9 +6,10 @@ extension Group{
 		// Validates that email is in the form "*@*.@"
 		guard
 			trim.count > 5,
+			trim.count < maxNameLength,
 			let dotI = trim.lastIndex(of: "."),
 			let atI = trim.lastIndex(of: "@"),
-			dotI < atI,
+			dotI > atI,
 			dotI != trim.endIndex,
 			atI != trim.startIndex
 		else {

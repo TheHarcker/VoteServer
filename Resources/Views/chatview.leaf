@@ -1,8 +1,7 @@
 <div id="chatarea">
-	<div style="max-height:400px; width:40%;overflow:hidden; overflow-y:scroll;" id="chatlist">
-	</div>
-	
 	<input type="textfield" id="newMessageField" "placeholder="New chatmessage" onkeydown="keyPress(this)" disabled></input>
 	<button onClick="sendMessage(socket)" id="sendMessageButton" disabled>Send</button>
 	<p id="chaterror"></p>
+	<div id="chatlist" style="max-height:700px;overflow:hidden; overflow-y:scroll;">
+	</div>
 </div>

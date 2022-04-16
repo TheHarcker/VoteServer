@@ -53,7 +53,6 @@ function saveCurrentMessage() {
 	if (val && val !== "") {
 		localStorage.setItem("lastmessage", val);
 	}
-	
 }
 
 // Handle incomming messages
@@ -97,15 +96,9 @@ socket.addEventListener("message", event => {
 					errorField.innerText = error;
 
 				}
-					
-				
-			
 				
 			}
-			
-			
 		};
-
 		reader.readAsText(event.data);
 	} else {
 		console.log("Non blob result: " + event.data);
@@ -155,7 +148,7 @@ function sendMessage(socket) {
 
 // Add a new message to the UI
 function showMessage(message) {
-	var div = document.createElement('div');
+	// Defines header
 	var b = document.createElement('b');
 	var header = document.createElement('p');
 	header.style = "display: flex; justify-content: space-between;";
@@ -176,22 +169,51 @@ function showMessage(message) {
 	
 	b.appendChild(header);
 	
-	var content = document.createTextNode(message.message);
-
+	// Inner block for the message
+	var div = document.createElement('div');
+	div.style = "display:inline-block;margin: 1em; vertical-align:top;";
+	// Sets the text content of the message and replaces all urls with an a-tag
+	let newMessage = urlify(message.message);
+	div.innerHTML = newMessage;
 	
-	div.appendChild(b);
-	div.appendChild(content);
 	
 	
 	
+	var img = document.createElement('img');
+	img.width = "80";
+	img.height = "80";
+	img.style = "margin: 0.1em; border-radius: 50%; vertical-align:top;"
+	if (message.imageURL) {
+		img.src = message.imageURL;
+	}
+	
+	// Outer div for the whole view
+	var odiv = document.createElement('div');
 	if (message.isSystemsMessage) {
-		div.style = "padding: 1em 0.5em;margin:0.2em;background-color: coral;border-radius: 1em;";
+		odiv.style = "padding: 1em 0.5em;margin:0.1em;background-color: coral;border-radius: 1em;";
 	} else {
-		div.style = "padding: 1em 0.5em;margin:0.2em;";
+		odiv.style = "padding: 1em 0.5em;margin:0.1em;";
 	}
 	
 	
+	
+	odiv.appendChild(b)
+	odiv.appendChild(img);
+	odiv.appendChild(div);
+
 	let list = document.getElementById("chatlist");
 	
-	list.prepend(div);
+	list.prepend(odiv);
+}
+
+
+// urlify from https://thewebdev.info/2021/04/17/how-to-detect-urls-in-a-javascript-string-and-convert-them-to-links/
+// Replaces urls in strings with an a-tag
+const urlify = (text) => {
+	if (text){
+		const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+		return text.replace(urlRegex, (url) => {
+			return `<a href="${url}" target="_blank">${url}</a>`;
+		})
+	}
 }

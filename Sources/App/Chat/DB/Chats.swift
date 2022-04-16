@@ -41,12 +41,12 @@ final class Chats: Model, Content {
 
 
 extension Chats{
-	func chatFormat(senderName: String) async -> ChatFormat{
+	func chatFormat(senderName: String, imageURL: String?) async -> ChatFormat{
 		guard self.id != nil else {
 			fatalError("Attempted to access chat which hasn't been saved")
 		}
 				
-		return ChatFormat(id: self.id!, sender: senderName, message: self.message, timestamp: self.timestamp, isSystemsMessage: self.systemsMessage)
+		return ChatFormat(id: self.id!, sender: senderName, message: self.message, imageURL: imageURL, timestamp: self.timestamp, isSystemsMessage: self.systemsMessage)
 	}
 }
 
@@ -74,7 +74,14 @@ extension Array where Element == Chats{
 				constituents[chat.sender] = const?.getNameOrId() ?? "[Deleted]"
 			}
 			
-			output.append(ChatFormat(id: chat.id!, sender: constituents[chat.sender]!, message: chat.message, timestamp: chat.timestamp, isSystemsMessage: chat.systemsMessage))
+			let imageURL: String?
+			if let email = Optional("hharck2@gmail.com"), let hash = await group.getHashFor(email) {
+				imageURL = "https://www.gravatar.com/avatar/" + hash
+			} else {
+				imageURL = nil
+			}
+			
+			output.append(ChatFormat(id: chat.id!, sender: constituents[chat.sender]!, message: chat.message, imageURL: imageURL, timestamp: chat.timestamp, isSystemsMessage: chat.systemsMessage))
 		}
 		return output
 	}

@@ -6,12 +6,44 @@
 				</script>
 				<script src="/js/chat.js"></script>
 			#endif
+			
+			<style>
+			th {
+				 white-space: nowrap;
+
+			}
+			table {
+				word-break:break-word;
+				background-color: lightblue;
+				padding:1em;
+			 	border-radius: 2em;
+			 
+			}
+			#chatarea {
+				margin: 1%;
+				padding: 1em;
+				border-radius: 2em;
+				background-color: lightblue;
+			}
+			
+			@media (min-width: 767px) {
+				#chatarea {
+					margin-left: 51%;
+				}
+				table {
+					float: left;
+					max-width:49%;
+				}
+			}
+			</style>
+			
 		#endexport
 
 		#export("body"):
-			<br><hr><br>
+			
 			<h3>Hi #(name), welcome to '#(groupName)'</h3>
 			
+			<div>
 			#extend("table"):
 			#export("tablerow"):
 			
@@ -40,12 +72,14 @@
                 </td>
                 #endif
 			#endexport
-		#endextend
-		#if(showChat):
-		<hr>
+			#endextend
+
+			#if(showChat):
+				
 				#extend("chatview"):
 				#endextend
-		#endif
-		
+				
+			#endif
+		</div>
 		#endexport
 #endextend
