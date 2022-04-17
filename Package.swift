@@ -14,7 +14,7 @@ let package = Package(
 		.package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
 		.package(url: "https://github.com/vapor/fluent-sqlite-driver.git", from: "4.0.0"),
 		// VoteKit definitions
-		.package(url: "https://git.smkid.dk/Harcker/VoteKit", branch: "main"), //HTTPS
+		.package(url: "https://git.smkid.dk/Harcker/VoteKit", from: "0.3.0"), //HTTPS
 		.package(url: "https://git.smkid.dk/Harcker/AltVoteKit", branch: "main"), //HTTPS
 		// VoteExchangeFormat, defines API protocols
 		.package(url: "https://git.smkid.dk/Harcker/VoteExchangeFormat", branch: "main"),
