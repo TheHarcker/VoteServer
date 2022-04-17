@@ -21,7 +21,6 @@ WORKDIR /build
 # files do not change.
 COPY ./Package.* ./
 RUN swift package resolve
-RUN swift package update
 
 # Copy entire repo into container
 COPY . .
