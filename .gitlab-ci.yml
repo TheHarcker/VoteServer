@@ -17,10 +17,11 @@ swift-build:
     - swift package update
   script:
     - swift build --build-tests
+    - cp -r $(swift build --build-tests --show-bin-path)/VoteServerPackageTests.xctest package.xctest
 
   artifacts: 
     paths:
-    - .build
+    - package.xctest
     expire_in: 1 hour
 
 swift-unit-test:
@@ -31,8 +32,12 @@ swift-unit-test:
     - apt-get -q update
     - apt-get -q dist-upgrade -y
     - apt-get install -y libsqlite3-dev
+    - swift package resolve
+    - swift package update
+    - mkdir -p $(swift build --build-tests --show-bin-path)
+    - cp -r package.xctest $(swift build --build-tests --show-bin-path)/VoteServerPackageTests.xctest
   script:
-    - swift test
+    - swift test --skip-build 
 
   needs: ["swift-build"]
 
