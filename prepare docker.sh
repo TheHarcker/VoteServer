@@ -64,7 +64,7 @@ git clone https://git.smkid.dk/Harcker/VoteServer.git
 
 cd VoteServer
 
-chmod 777 ./upgrade.sh
+chmod +x ./upgrade.sh
 
 # Runs the app
 docker-compose pull
