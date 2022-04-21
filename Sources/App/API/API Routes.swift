@@ -7,6 +7,11 @@ func APIRoutes(_ app: Application, routesGroup API: RoutesBuilder, groupsManager
 	chat.webSocket("adminsocket", onUpgrade: joinChat)
 	
 	func joinChat(req: Request, socket: WebSocket) async{
+		guard enableChat else {
+			try? await socket.close()
+			return
+		}
+		
 		if req.url.path.hasSuffix("adminsocket") {
 			guard
 				let sessionID = req.session.authenticated(AdminSession.self),

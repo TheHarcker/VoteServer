@@ -282,8 +282,10 @@ fileprivate struct SettingsUI: UITableManager{
             Setting("selfReset", "Constituents can reset their votes", type: .bool(current: current.constituentsCanSelfResetVotes)),
             Setting("CSVConfiguration", "CSV Export mode", type: .list(options: Array(current.csvKeys.keys), current: current.csvConfiguration.name)),
 			Setting("showTags", "Show tags", type: .bool(current: current.showTags)),
-			Setting("chat", "Allow livechat", type: .list(options: GroupSettings.ChatState.allCases.map(\.rawValue), current: current.chatState.rawValue)),
             ]
+		if enableChat{
+			self.rows.append(Setting("chat", "Allow livechat", type: .list(options: GroupSettings.ChatState.allCases.map(\.rawValue), current: current.chatState.rawValue)))
+		}
     }
     
     struct Setting: Codable{

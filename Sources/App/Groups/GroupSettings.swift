@@ -11,7 +11,7 @@ struct GroupSettings: Codable, Sendable{
 		
 		self.showTags = showTags
 		
-		self.chatState = .forAll
+		self.chatState = enableChat ? .forAll : .disabled
     }
     
     /// If this group allows unverified constituents to join
