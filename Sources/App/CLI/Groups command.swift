@@ -42,7 +42,7 @@ struct GroupsCommand: Command{
             return
         }
         
-        guard trimVal.count == joinPhraseLength else {
+		guard trimVal.count == Config.joinPhraseLength else {
             throw "Invalid joinphrase"
         }
         let joinPhrase = trimVal

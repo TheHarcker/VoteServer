@@ -9,7 +9,7 @@ extension Group{
 		// Validates that email is in the form "*@*.@"
 		guard
 			trim.count > 5,
-			trim.count < maxNameLength,
+			trim.count < Config.maxNameLength,
 			let dotI = trim.lastIndex(of: "."),
 			let atI = trim.lastIndex(of: "@"),
 			dotI > atI,

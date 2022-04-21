@@ -241,6 +241,7 @@ func adminRoutes(_ app: Application, groupsManager: GroupsManager) {
 	admin.get("chats", "downloadcsv", use: downloadChats)
 	func downloadChats(req: Request) async throws -> Response{
 		guard
+			Config.enableChat,
 			let sessionID = req.session.authenticated(AdminSession.self),
 			let group = await groupsManager.groupForSession(sessionID)
 				
@@ -283,7 +284,7 @@ fileprivate struct SettingsUI: UITableManager{
             Setting("CSVConfiguration", "CSV Export mode", type: .list(options: Array(current.csvKeys.keys), current: current.csvConfiguration.name)),
 			Setting("showTags", "Show tags", type: .bool(current: current.showTags)),
             ]
-		if enableChat{
+		if Config.enableChat{
 			self.rows.append(Setting("chat", "Allow livechat", type: .list(options: GroupSettings.ChatState.allCases.map(\.rawValue), current: current.chatState.rawValue)))
 		}
     }

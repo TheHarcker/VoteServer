@@ -8,7 +8,7 @@ func checkMessage(msg: String) throws -> String{
 	let msg = msg.trimmingCharacters(in: .whitespacesAndNewlines)
 	if msg.isEmpty {
 		throw ChatError.emptyMessage
-	} else if msg.count > maxChatLength {
+	} else if msg.count > Config.maxChatLength {
 		throw ChatError.messageTooLong
 	}
 	

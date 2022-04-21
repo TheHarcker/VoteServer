@@ -1,7 +1,7 @@
 /// Generates a join phrase with the characters [a-z,, 0-9]
 /// - Parameter chars: The number of characters in the final string
 /// - Returns: A join phrase with the characters [a-z, 0-9]
-func joinPhraseGenerator(chars: UInt = joinPhraseLength) -> String{
+func joinPhraseGenerator(chars: UInt = Config.joinPhraseLength) -> String{
 	guard chars >= 1 else {
 		assertionFailure("Join phrases can't be \(chars) long")
 		return ""

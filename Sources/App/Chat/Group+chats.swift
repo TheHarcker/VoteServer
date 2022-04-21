@@ -5,6 +5,6 @@ extension Group{
 	/// - Parameter constituent: The constituent being checked
 	/// - Returns: Whether the constituent is allowed
 	func constituentCanChat(_ constituent: Constituent) async -> Bool {
-		return enableChat && self.settings.chatState != .disabled && (self.constituentIsVerified(constituent) || self.settings.chatState == .forAll)
+		return Config.enableChat && self.settings.chatState != .disabled && (self.constituentIsVerified(constituent) || self.settings.chatState == .forAll)
 	}
 }

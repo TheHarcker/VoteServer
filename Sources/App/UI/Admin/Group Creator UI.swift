@@ -11,13 +11,14 @@ struct GroupCreatorUI: UIManager{
 	
 	internal init(errorString: String? = nil, _ persistentData: GroupCreatorData? = nil) {
 		self.groupName = persistentData?.groupName
-		self.allowsUnverifiedConstituents = persistentData?.allowsUnverified() ?? defaultValueForUnverifiedConstituents
+		self.allowsUnverifiedConstituents = persistentData?.allowsUnverified() ?? Config.defaultValueForUnverifiedConstituents
 		
 		self.errorString = errorString
 	}
 }
 import Vapor
 extension GroupCreatorUI{
+	//Convenience init allowing a direct call from routes
 	init(req: Request){
 		self.init(errorString: nil, nil)
 	}

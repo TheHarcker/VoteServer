@@ -11,10 +11,12 @@ struct GroupCreatorData: Codable{
 extension GroupCreatorData{
 	func getGroupName() throws -> String{
 		let trim = groupName.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trim.isEmpty && trim.count <= maxNameLength else {
+		guard !trim.isEmpty else {
 			throw GroupCreationError.invalidGroupname
 		}
-		
+		guard trim.count <= Config.maxNameLength else {
+			throw GroupCreationError.groupNameTooLong
+		}
 		return trim
 	}
 	
@@ -32,7 +34,7 @@ extension GroupCreatorData{
 		}
 		do{
 			
-			let constituents = try constituentsListFromCSV(file: self.file!, maxNameLength: maxNameLength)
+			let constituents = try constituentsListFromCSV(file: self.file!, maxNameLength: Int(Config.maxNameLength))
 			
 			// Checks that no one is using the name or identifier "admin"
 			if (constituents.map(\.identifier) + constituents.compactMap(\.name).map{$0.lowercased()}).contains(where: {$0.contains("admin")}){
@@ -80,6 +82,8 @@ enum GroupCreationError: ErrorString{
 			return "User appears multiple times."
 		case .invalidIdentifier:
 			return "One or more invalid user identifiers were found."
+		case .groupNameTooLong:
+			return "The name of the group was too long. (\(Config.maxNameLength))"
 		case .invalidGroupname:
 			return "The group name is invalid."
 		case .invalidPassword:
@@ -87,7 +91,7 @@ enum GroupCreationError: ErrorString{
 		case .invalidCSV:
 			return "The supplied CSV file was invalid, the separators needs to be \",\" and newlines. Check that the header row is \"Name,Identifier,Tag,Email\". Tag and Email are optional."
 		case .nameTooLong:
-			return "One of the supplied constituents has a name/identifier/tag which surpasses the maximum name length."
+			return "One of the supplied constituents has a name/identifier/tag which surpasses the maximum name length. (\(Config.maxNameLength))"
 		case .invalidTag:
 			return "One of the supplied tags are invalid, either by having the prefix \"-\" or exceeding the length limit."
 		case .invalidEmail:
@@ -97,5 +101,5 @@ enum GroupCreationError: ErrorString{
 		}
 	}
 	
-	case userAddedMultipleTimes, invalidIdentifier, invalidGroupname, invalidPassword, invalidCSV, nameTooLong, invalidTag, invalidEmail, emailAddedMultipleTimes
+	case userAddedMultipleTimes, invalidIdentifier, groupNameTooLong, invalidGroupname, invalidPassword, invalidCSV, nameTooLong, invalidTag, invalidEmail, emailAddedMultipleTimes
 }

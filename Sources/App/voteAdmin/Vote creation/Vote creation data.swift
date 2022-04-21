@@ -46,7 +46,7 @@ extension VoteCreationReceivedData{
         }
 		
         // Checks that no option violates the maxNameLength constant
-		guard options.allSatisfy({$0.count <= maxNameLength}) else {
+		guard options.allSatisfy({$0.count <= Config.maxNameLength}) else {
             throw voteCreationError.invalidOptionName
         }
 		
@@ -55,7 +55,7 @@ extension VoteCreationReceivedData{
 	
 	func getTitle() throws -> String{
 		let title = nameOfVote.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !title.isEmpty, title.count <= maxNameLength else {
+		guard !title.isEmpty, title.count <= Config.maxNameLength else {
 			throw voteCreationError.invalidTitle
 		}
 		return title

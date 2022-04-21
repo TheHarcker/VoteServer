@@ -126,7 +126,7 @@ actor ChatSocketController{
 					.filter(\.$groupID == group.id)
 					.sort(\.$timestamp, .descending)
 				if !isAdmin{
-					qb = qb.limit(chatQueryLimit)
+					qb = qb.limit(Int(Config.chatQueryLimit))
 				}
 				
 				let chats = try await qb.all()
@@ -137,15 +137,15 @@ actor ChatSocketController{
 				let msg = try checkMessage(msg: newMsg)
 				
 				if !isAdmin{
-					// Max n messages pr m seconds pr. constituent
-					let time = Date().advanced(by: -messageRateLimiting.seconds)
+					// Max n messages pr. m seconds pr. constituent
+					let time = Date().advanced(by: -Config.chatRateLimiting.seconds)
 					let count = try await Chats.query(on: db)
 						.filter(\.$groupID == group.id)
 						.filter(\.$sender == constituent!.identifier)
 						.filter(\.$timestamp > time)
 						.count()
 					
-					if count >= messageRateLimiting.messages {
+					if count >= Config.chatRateLimiting.messages {
 						sendER(error: .rateLimited, to: ws)
 						return
 					}

@@ -88,7 +88,7 @@ extension Group{
 			self.settings.showTags = showTags
 		}
 		
-		if let chatState = chatState, enableChat{
+		if let chatState = chatState, Config.enableChat{
 			switch chatState{
 			case .onlyVerified:
 				await self.socketController.kickAll(onlyUnverified: true, includeAdmins: false)

@@ -7,7 +7,7 @@ func APIRoutes(_ app: Application, routesGroup API: RoutesBuilder, groupsManager
 	chat.webSocket("adminsocket", onUpgrade: joinChat)
 	
 	func joinChat(req: Request, socket: WebSocket) async{
-		guard enableChat else {
+		guard Config.enableChat else {
 			try? await socket.close()
 			return
 		}
