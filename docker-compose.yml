@@ -24,14 +24,14 @@ services:
      - VIRTUAL_HOST=${VIRTUAL_HOST}
      - LETSENCRYPT_HOST=${LETSENCRYPT_HOST}
      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
-     - maxNameLength=${maxNameLength}
-     - joinPhraseLength=${joinPhraseLength}
-     - maxChatLength=${maxChatLength}
-     - chatQueryLimit=${chatQueryLimit}
-     - chatRateLimitingSeconds=${chatRateLimitingSeconds}
-     - chatRateLimitingMessages=${chatRateLimitingMessages}
-     - defaultValueForUnverifiedConstituents=${defaultValueForUnverifiedConstituents}
-     - enableChat=${enableChat}
+     - maxNameLength=${maxNameLength-100}
+     - joinPhraseLength=${joinPhraseLength-6}
+     - maxChatLength=${maxChatLength-1000}
+     - chatQueryLimit=${chatQueryLimit-100}
+     - chatRateLimitingSeconds=${chatRateLimitingSeconds-10.0}
+     - chatRateLimitingMessages=${chatRateLimitingMessages-10}
+     - defaultValueForUnverifiedConstituents=${defaultValueForUnverifiedConstituents-false}
+     - enableChat=${enableChat-true}
      
 
   ###################
