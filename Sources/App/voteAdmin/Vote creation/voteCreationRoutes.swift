@@ -17,15 +17,14 @@ func voteCreationRoutes(_ app: Application, groupsManager: GroupsManager) {
 		}
 		
 		if req.method == .POST{
-		
-		switch type {
-		case .alternative:
-			return try await treat(req: req, AlternativeVote.self, group: group)
-		case .yesNo:
-			return try await treat(req: req, yesNoVote.self, group: group)
-		case .simpleMajority:
-			return try await treat(req: req, SimpleMajority.self, group: group)
-		}
+			switch type {
+			case .alternative:
+				return try await treat(req: req, AlternativeVote.self, group: group)
+			case .yesNo:
+				return try await treat(req: req, yesNoVote.self, group: group)
+			case .simpleMajority:
+				return try await treat(req: req, SimpleMajority.self, group: group)
+			}
 		} else {
 			switch type {
 			case .alternative:
