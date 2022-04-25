@@ -34,7 +34,7 @@ struct Config{
 	}
 	
 	private static func getDefaultConfig() -> Config{
-		Config(maxNameLength: 100, joinPhraseLength: 6, maxChatLength: 1000, chatQueryLimit: 100, chatRateLimiting: (seconds: 10.0, messages: 10), defaultValueForUnverifiedConstituents: false, enableChat: true, adminProfilePicture: "https://www.pf.dk/wp-content/uploads/2020/01/SMKID-Logo-300x213.png")
+		Config(maxNameLength: 100, joinPhraseLength: 6, maxChatLength: 1000, chatQueryLimit: 100, chatRateLimiting: (seconds: 10.0, messages: 10), defaultValueForUnverifiedConstituents: false, enableChat: true, adminProfilePicture: "/img/icon.png")
 	}
 }
 
