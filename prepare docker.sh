@@ -67,6 +67,6 @@ cd VoteServer
 chmod +x ./upgrade.sh
 
 # Runs the app
-docker-compose pull
+docker compose pull
 echo "Starting server"
-docker-compose up -d
+docker compose up -d
