@@ -6,7 +6,7 @@ extension Group{
 			return nil
 		}
 		
-		// Validates that email is in the form "*@*.@"
+		// Validates that email is in the form "*@*.*"
 		guard
 			trim.count > 5,
 			trim.count < Config.maxNameLength,
