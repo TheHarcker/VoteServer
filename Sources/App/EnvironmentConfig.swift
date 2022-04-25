@@ -7,6 +7,7 @@ struct Config{
 	let chatRateLimiting: (seconds: Double, messages: UInt)
 	let defaultValueForUnverifiedConstituents: Bool
 	let enableChat: Bool
+	let adminProfilePicture: String
 	
 	private(set) static var config: Config!
 	
@@ -27,12 +28,13 @@ struct Config{
 		let chatRateLimiting: (seconds: Double, messages: UInt) = (seconds: Environment.key("chatRateLimitingSeconds", defaultValue: defaultConfig.chatRateLimiting.seconds), messages: Environment.key("chatRateLimitingMessages", defaultValue: defaultConfig.chatRateLimiting.messages))
 		let defaultValueForUnverifiedConstituents: Bool = Environment.key("defaultValueForUnverifiedConstituents", defaultValue: defaultConfig.defaultValueForUnverifiedConstituents)
 		let enableChat: Bool = Environment.key("enableChat", defaultValue: defaultConfig.enableChat)
+		let adminProfilePicture: String = Environment.key("adminProfilePicture", defaultValue: defaultConfig.adminProfilePicture)
 		
-		return Config(maxNameLength: maxNameLength, joinPhraseLength: joinPhraseLength, maxChatLength: maxChatLength, chatQueryLimit: chatQueryLimit, chatRateLimiting: chatRateLimiting, defaultValueForUnverifiedConstituents: defaultValueForUnverifiedConstituents, enableChat: enableChat)
+		return Config(maxNameLength: maxNameLength, joinPhraseLength: joinPhraseLength, maxChatLength: maxChatLength, chatQueryLimit: chatQueryLimit, chatRateLimiting: chatRateLimiting, defaultValueForUnverifiedConstituents: defaultValueForUnverifiedConstituents, enableChat: enableChat, adminProfilePicture: adminProfilePicture)
 	}
 	
 	private static func getDefaultConfig() -> Config{
-		Config(maxNameLength: 100, joinPhraseLength: 6, maxChatLength: 1000, chatQueryLimit: 100, chatRateLimiting: (seconds: 10.0, messages: 10), defaultValueForUnverifiedConstituents: false, enableChat: true)
+		Config(maxNameLength: 100, joinPhraseLength: 6, maxChatLength: 1000, chatQueryLimit: 100, chatRateLimiting: (seconds: 10.0, messages: 10), defaultValueForUnverifiedConstituents: false, enableChat: true, adminProfilePicture: "https://www.pf.dk/wp-content/uploads/2020/01/SMKID-Logo-300x213.png")
 	}
 }
 
@@ -44,11 +46,13 @@ extension Config{
 	static var chatRateLimiting: (seconds: Double, messages: UInt) {Self.config.chatRateLimiting}
 	static var defaultValueForUnverifiedConstituents: Bool {Self.config.defaultValueForUnverifiedConstituents}
 	static var enableChat: Bool {Self.config.enableChat}
+	static var adminProfilePicture: String {Self.config.adminProfilePicture}
+
 }
 
 extension Environment{
 	fileprivate static func key(_ key: String, defaultValue: UInt) -> UInt{
-		guard let v = Self.get(key) else {
+		guard let v: String = Self.get(key) else {
 			return defaultValue
 		}
 		
@@ -59,7 +63,7 @@ extension Environment{
 	}
 	
 	fileprivate static func key(_ key: String, defaultValue: Double) -> Double{
-		guard let v = Self.get(key) else {
+		guard let v: String = Self.get(key) else {
 			return defaultValue
 		}
 		
@@ -70,7 +74,7 @@ extension Environment{
 	}
 	
 	fileprivate static func key(_ key: String, defaultValue: Bool) -> Bool{
-		guard let v = Self.get(key) else {
+		guard let v: String = Self.get(key) else {
 			return defaultValue
 		}
 		
@@ -78,5 +82,16 @@ extension Environment{
 			fatalError("Could not read Environmental variable \"\(key)\", expected boolean value (true/false)")
 		}
 		return i
+	}
+	
+	fileprivate static func key(_ key: String, defaultValue: String) -> String{
+		guard let v: String = Self.get(key) else {
+			return defaultValue
+		}
+		
+		guard !v.isEmpty else {
+			fatalError("Could not read Environmental variable \"\(key)\", expected a non empty string value")
+		}
+		return v
 	}
 }

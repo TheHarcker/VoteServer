@@ -5,7 +5,7 @@ Setup script for Ubuntu 20.04 which install Docker and Docker-compose and contin
 `wget -O - https://git.smkid.dk/Harcker/VoteServer/-/raw/main/prepare%20docker.sh | bash`
 
 # Configuration
-For additional configuration, the following environment variables can be set. The defualt configuration (And available keys) is:
+For additional configuration, the following environment variables can be set. The default configuration (And available keys) is:
 
 > maxNameLength=100  
 > joinPhraseLength=6  
@@ -15,6 +15,7 @@ For additional configuration, the following environment variables can be set. Th
 > chatRateLimitingMessages=10  
 > defaultValueForUnverifiedConstituents=false  
 > enableChat=true  
+> adminProfilePicture="/img/icon.png" 
  
  ## Docker compose: 
  Add the values above to an `.env`-file in the same directory as `docker-compose.yml`. (Or rather the directory from which `docker-compose up` is called)

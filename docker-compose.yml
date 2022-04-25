@@ -32,6 +32,7 @@ services:
      - chatRateLimitingMessages=${chatRateLimitingMessages-10}
      - defaultValueForUnverifiedConstituents=${defaultValueForUnverifiedConstituents-false}
      - enableChat=${enableChat-true}
+     - adminProfilePicture=${adminProfilePicture-"/img/icon.png"}
      
 
   ###################

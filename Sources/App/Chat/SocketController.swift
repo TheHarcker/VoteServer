@@ -160,7 +160,7 @@ actor ChatSocketController{
 
 					if isAdmin{
 						name = "Admin"
-						imageURL = "https://c.tenor.com/xTel3SMPEYUAAAAd/supreme-leader-say-yes.gif"
+						imageURL = Config.adminProfilePicture
 					} else {
 						name = constituent!.getNameOrId()
 						imageURL = await group.getGravatarURLForConst(constituent)

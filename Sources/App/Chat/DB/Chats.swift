@@ -65,7 +65,7 @@ extension Array where Element == Chats{
 		// [ConstituentIdentifier: (ScreenName, gravatar.com + Email hash)]
 		var constituents = [String: (name: String, imageURL: String?)]()
 		var output = [ChatFormat]()
-		constituents["Admin"] = ("Admin", "https://c.tenor.com/xTel3SMPEYUAAAAd/supreme-leader-say-yes.gif")
+		constituents["Admin"] = ("Admin", Config.adminProfilePicture)
 		
 		for chat in self{
 			if constituents[chat.sender] == nil {
