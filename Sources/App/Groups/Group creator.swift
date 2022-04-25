@@ -82,7 +82,7 @@ enum GroupCreationError: ErrorString{
 		case .invalidIdentifier:
 			return "One or more invalid user identifiers were found."
 		case .groupNameTooLong:
-			return "The name of the group was too long. (\(Config.maxNameLength))"
+			return "The name of the group was too long (\(Config.maxNameLength))."
 		case .invalidGroupname:
 			return "The group name is invalid."
 		case .invalidPassword:
@@ -90,13 +90,13 @@ enum GroupCreationError: ErrorString{
 		case .invalidCSV:
 			return "The supplied CSV file was invalid, the separators needs to be \",\" and newlines. Check that the header row is \"Name,Identifier,Tag,Email\". Tag and Email are optional."
 		case .nameTooLong:
-			return "One of the supplied constituents has a name/identifier/tag which surpasses the maximum name length. (\(Config.maxNameLength))"
+			return "One of the supplied constituents has a name/identifier/tag which surpasses the maximum name length (\(Config.maxNameLength)). "
 		case .invalidTag:
-			return "One of the supplied tags are invalid, either by having the prefix \"-\" or exceeding the length limit."
+			return "One of the supplied tags are invalid, either by having the prefix \"-\" or exceeding the length limit (\(Config.maxNameLength))."
 		case .invalidEmail:
-			return "One of the supplied emails are invalid"
+			return "One of the supplied emails are invalid."
 		case .emailAddedMultipleTimes:
-			return "An email was added multiple times"
+			return "An email was added multiple times."
 		}
 	}
 	

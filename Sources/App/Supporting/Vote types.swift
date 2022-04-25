@@ -110,7 +110,7 @@ extension yesNoVote: SupportedVoteType{
     typealias PersistanceData = [UUID:Bool]
     typealias VotePageUI = YesNoVotePage
     static let enumCase: VoteTypes.StringStub = .yesNo
-    static let minimumRequiredOptions: Int = 0
+    static let minimumRequiredOptions: Int = 1
 }
 
 extension SimpleMajority: SupportedVoteType{
