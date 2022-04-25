@@ -50,8 +50,7 @@ extension GroupCreatorData{
 			}
 				  
 			
-			let set = Set(constituents)
-			return set
+			return Set(constituents)
 			
 		} catch let er as DecodeConstituentError{
 			switch er {
